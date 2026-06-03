@@ -84,11 +84,14 @@ index.push(tgl)
 }
 
 Bot.setProperty(
-kdtk + "_BL",
-index,
-"json"
+  "index_" + kdtk,
+  index,
+  "json"
 )
-
+let salesBL = bl[tgl].sales
+let spdBL = bl[tgl].spd
+let stdBL = bl[tgl].std
+let apcBL = bl[tgl].apc
 let apc = 0
 
 if(struk > 0){
@@ -99,8 +102,6 @@ Bot.sendMessage(
 "✅ Data tersimpan\n\n" +
 "KDTK : " + kdtk +
 "\nTanggal : " + tgl +
-"\nSales Bulan Lalu : Rp." +
-new Intl.NumberFormat('id-ID').format(salesBL) +
 "\nSales : Rp." +
 new Intl.NumberFormat('id-ID').format(sales) +
 "\nStruk : " + struk +

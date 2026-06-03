@@ -86,7 +86,7 @@ if(!history){
 }
 
 let keyHistory =
-bulanNama[now.getMonth()] + " " + now.getFullYear()
+bulanNama[now.getMonth()+1] + " " + now.getFullYear()
 
 history[keyHistory] = Math.round(spd)
 
@@ -99,24 +99,68 @@ Bot.setProperty(
 let std = totalStruk / list.length
 let apc = totalStruk > 0 ? Math.round(totalSales / totalStruk) : 0
 
-let bl =
-Bot.getProperty(
+let bl = Bot.getProperty(
  kdtk + "_BL"
 )
 
+let batasHari = new Date().getDate()
+
+if(!bl){
+ Bot.sendMessage(
+  "Data bulan lalu tidak ditemukan"
+ )
+ return
+}
+
+let totalSPDbl = 0
+let totalSTDbl = 0
+let totalAPCbl = 0
+let hariBL = 0
+
+for(let tgl=1; tgl<=batasHari; tgl++){
+
+ let d = bl[tgl]
+
+ if(d){
+
+  totalSPDbl = Number(d.spd || 0)
+  totalSTDbl = Number(d.std || 0)
+  totalAPCbl = Number(d.apc || 0)
+
+  hariBL++
+ }
+}
+
+if(hariBL == 0){
+ Bot.sendMessage(
+  "Data bulan lalu kosong"
+ )
+ return
+}
+
+let spdBL = totalSPDbl
+let stdBL = totalSTDbl
+let apcBL = totalAPCbl
+
+
+/*let bl =
+Bot.getProperty(
+ kdtk + "_BL"
+)
+*/
 let gSPD = 0
 let gSTD = 0
 let gAPC = 0
 
-let spdBL = 0
-let stdBL = 0
-let apcBL = 0
+/*let spdBL = spd.tgl
+let stdBL = std.tgl
+let apcBL = apc.tgl*/
 
-let totalSPDbl = 0
-let totalSTDbl = 0
-let hariBL = 0
+/*let totalSPDbl = 0
+let totalSTDbl = 0*/
+//let hariBL = 0
 
-if(bl){
+/*if(bl){
 
  for(let tgl in bl){
 
@@ -127,11 +171,11 @@ if(bl){
 
   hariBL++
  }
-
+*/
  if(hariBL > 0){
 
-  spdBL = totalSPDbl / hariBL
-  stdBL = totalSTDbl / hariBL
+  //spdBL = totalSPDbl / hariBL
+  //stdBL = totalSTDbl / hariBL
 
   apcBL =
   totalSTDbl > 0
@@ -154,7 +198,7 @@ if(bl){
   : 0
 
  }
-}
+//}
 
 let targetSales = Bot.getProperty(kdtk + "_target_sales")
 let targetSpd = Bot.getProperty(kdtk+"_target_spd")
@@ -176,7 +220,7 @@ Math.round(spdBL).toLocaleString("id-ID") +
 Math.round(stdBL).toLocaleString("id-ID") +
 "\n" +
 "APC : " +
-apcBL.toLocaleString("id-ID") +
+Math.round(apcBL).toLocaleString("id-ID") +
 "\n\n" +
 
 "*LAPORAN SALES HARIAN " + bulanNama[now.getMonth()+1].toUpperCase() + " " + tahun + "*\n\n" +
