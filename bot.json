@@ -1,0 +1,6 @@
+{
+  "bb_sync_version":"1.0",
+  "name":"SlsReport_bot",
+  "csv_url":"https://docs.google.com/spreadsheets/d/e/2PACX-1vRnAEFHpy8s6FifOSBYKKrXpTP9pqGJxgeiylh_PjzqoZl5zMl6SvOfYAuk8UCsvSbtd-LcfMrGeZEG/pub?output=csv",
+  "git_remote":"git@github.com:GusairiP/SlsReport_bot.git"
+}
