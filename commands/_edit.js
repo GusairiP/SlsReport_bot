@@ -74,6 +74,9 @@ parseInt(p[3]),
 "integer"
 )
 
+//update dashboard admin panel
+Bot.runCommand("/dashboard_refresh")
+
 Bot.sendMessage(
 "✅ Data berhasil diubah"
 )
