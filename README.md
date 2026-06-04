@@ -11,39 +11,39 @@ SlsReport Bot adalah bot Telegram yang dirancang untuk membantu monitoring perfo
 
 ---
 
-✨ Features
+# ✨ Features
 
-🏪 Store Management
+## 🏪 Store Management
 
 - Registrasi toko
 - Penyimpanan data AM & AS
 - Target Sales & Target SPD
 
-📊 Sales Monitoring
+## 📊 Sales Monitoring
 
 - Input sales harian
 - Input struk harian
 - Perhitungan APC otomatis
 
-📈 Analytics
+## 📈 Analytics
 
 - Growth SPD
 - Growth STD
 - Growth APC
 - Achievement Target
 
-🔮 Closing Prediction
+## 🔮 Closing Prediction
 
 - Prediksi closing bulanan
 - GAP terhadap target
 - Status Over / Under Target
 
-📉 Trend Analysis
+## 📉 Trend Analysis
 
 - Riwayat SPD bulanan
 - Trend naik/turun otomatis
 
-⚙️ Admin Panel
+## ⚙️ Admin Panel
 
 - Konfigurasi bot
 - Pengaturan target default
@@ -52,7 +52,7 @@ SlsReport Bot adalah bot Telegram yang dirancang untuk membantu monitoring perfo
 
 ---
 
-🏗 System Architecture
+# 🏗 System Architecture
 
 ┌─────────────────┐
 │ Telegram User   │
@@ -76,7 +76,7 @@ Trend   Report  Prediction
 
 ---
 
-📂 Property Structure
+# 📂 Property Structure
 
 Master Store
 
@@ -113,7 +113,7 @@ T001_SPD_HISTORY
 
 ---
 
-🧮 Formula Engine
+# 🧮 Formula Engine
 
 APC
 
@@ -145,7 +145,7 @@ SPD × 31
 
 ---
 
-📋 Commands
+# 📋 Commands
 
 Command| Fungsi
 /start| Menu utama
@@ -165,7 +165,7 @@ Command| Fungsi
 
 ---
 
-📥 Example Workflow
+# 📥 Example Workflow
 
 1️⃣ Daftar Toko
 
@@ -209,9 +209,9 @@ Command| Fungsi
 
 ---
 
-🔐 Access Control
+# 🔐 Access Control
 
-👨‍💼 Admin
+## 👨‍💼 Admin
 
 Memiliki akses:
 
@@ -223,7 +223,7 @@ Memiliki akses:
 /hapus
 /admin
 
-👤 User
+## 👤 User
 
 Memiliki akses:
 
@@ -236,7 +236,7 @@ Memiliki akses:
 
 ---
 
-⚙️ Admin Panel
+# ⚙️ Admin Panel
 
 Konfigurasi dilakukan melalui:
 
@@ -252,11 +252,11 @@ DEFAULT_TARGET_SPD| Target SPD Default
 
 ---
 
-📊 Sample Output
+# 📊 Sample Output
 
 Growth
 
-📈 GROWTH SALES MTD
+## 📈 GROWTH SALES MTD
 
 KDTK : T001
 
@@ -270,7 +270,7 @@ Growth : 🟢 +5.74%
 
 Closing
 
-🎯 CLOSING REPORT
+## 🎯 CLOSING REPORT
 
 SPD      : Rp.9.200.000
 Prediksi : Rp.285.200.000
@@ -281,7 +281,7 @@ Target   : Rp.278.796.424
 
 ---
 
-🛣 Roadmap
+# 🛣 Roadmap
 
 Version 1.1
 
@@ -303,7 +303,7 @@ Version 2.0
 
 ---
 
-🛠 Built With
+# 🛠 Built With
 
 - Bots.Business
 - Telegram Bot API
@@ -311,7 +311,7 @@ Version 2.0
 
 ---
 
-👨‍💻 Author
+# 👨‍💻 Author
 
 Gusairi Putra
 
@@ -319,7 +319,7 @@ Sales Analytics & Automation Project
 
 ---
 
-📄 License
+# 📄 License
 
 MIT License
 
