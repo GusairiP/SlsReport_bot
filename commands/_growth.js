@@ -16,6 +16,35 @@
   group: 
 CMD*/
 
+/*
+========================================
+COMMAND : /growth
+MODULE  : ANALYTICS
+========================================
+
+FUNGSI:
+Menghitung growth MTD vs bulan lalu.
+
+FORMAT:
+/growth T001
+
+SUMBER DATA:
+T001_sales_x
+T001_struk_x
+T001_BL
+
+OUTPUT:
+SPD Growth
+STD Growth
+APC Growth
+
+========================================
+*/
+
+// ======================
+// PARSING KDTK
+// ======================
+
 let kdtk = ""
 
 if(params){
@@ -32,7 +61,7 @@ if(!kdtk){
 }
 
 // ======================
-// TANGGAL HARI INI
+// TANGGAL BERJALAN
 // ======================
 
 let batasHari = new Date().getDate()
@@ -44,6 +73,10 @@ let batasHari = new Date().getDate()
 let totalSalesNow = 0
 let totalStrukNow = 0
 let hariNow = 0
+
+// ======================
+// HITUNG BULAN BERJALAN
+// ======================
 
 for(let tgl=1; tgl<=batasHari; tgl++){
 
@@ -78,7 +111,7 @@ let stdNow = totalStrukNow / hariNow
 let apcNow = totalSalesNow / totalStrukNow
 
 // ======================
-// BULAN LALU (MTD)
+// AMBIL DATA BULAN LALU
 // ======================
 
 let bl = Bot.getProperty(
@@ -123,7 +156,7 @@ let stdBL = totalSTDbl / hariBL
 let apcBL = totalAPCbl / hariBL
 
 // ======================
-// GROWTH
+// HITUNG GROWTH
 // ======================
 
 let gSPD =
@@ -146,6 +179,10 @@ function trend(v){
  if(v < 0) return "🔴"
  return "⚪"
 }
+
+// ======================
+// GENERATE OUTPUT
+// ======================
 
 Bot.sendMessage(
 "📈 GROWTH SALES MTD\n\n"+

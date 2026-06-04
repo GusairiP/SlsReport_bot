@@ -16,6 +16,39 @@
   group: 
 CMD*/
 
+/*
+========================================
+COMMAND : /rekap
+MODULE  : REPORTING
+========================================
+
+FUNGSI:
+Menampilkan rekap sales bulanan.
+
+FORMAT:
+/rekap T001
+
+SUMBER DATA:
+index_T001
+T001_sales_x
+T001_struk_x
+T001_BL
+
+OUTPUT:
+Sales Harian
+SPD
+STD
+APC
+Growth
+Trend
+
+========================================
+*/
+
+// ======================
+// VALIDASI INPUT
+// ======================
+
 if (!params) {
   Bot.sendMessage("Format:\n/rekap KDTK")
   return
@@ -23,13 +56,20 @@ if (!params) {
 
 let kdtk = params.toUpperCase()
 
+// ======================
+// AMBIL MASTER TOKO
+// ======================
+
 let store = Bot.getProperty("store_" + kdtk)
 
 let toko = store ? store.toko : Bot.getProperty(kdtk+"_nama")
 let am = store ? store.am : Bot.getProperty(kdtk+"_am")
 let as = store ? store.as : Bot.getProperty(kdtk+"_as")
 
-// ambil index tanggal
+// ======================
+// AMBIL INDEX TANGGAL
+// ======================
+
 let index = Bot.getProperty("index_" + kdtk)
 
 if (!index || index.length == 0) {
@@ -40,6 +80,10 @@ if (!index || index.length == 0) {
 let list = []
 let totalSales = 0
 let totalStruk = 0
+
+// ======================
+// LOOPING DATA SALES
+// ======================
 
 for (let i = 0; i < index.length; i++) {
 
@@ -76,6 +120,10 @@ let tahun = now.getFullYear()
 
 let spd = totalSales / list.length
 
+// ======================
+// UPDATE HISTORY SPD
+// ======================
+
 let history =
 Bot.getProperty(
  kdtk + "_SPD_HISTORY"
@@ -98,6 +146,10 @@ Bot.setProperty(
 
 let std = totalStruk / list.length
 let apc = totalStruk > 0 ? Math.round(totalSales / totalStruk) : 0
+
+// ======================
+// AMBIL DATA BULAN LALU
+// ======================
 
 let bl = Bot.getProperty(
  kdtk + "_BL"
@@ -148,6 +200,11 @@ Bot.getProperty(
  kdtk + "_BL"
 )
 */
+
+// ======================
+// HITUNG GROWTH
+// ======================
+
 let gSPD = 0
 let gSTD = 0
 let gAPC = 0
@@ -200,11 +257,18 @@ let totalSTDbl = 0*/
  }
 //}
 
+// ======================
+// HITUNG ACHIEVEMENT
+// ======================
+
 let targetSales = Bot.getProperty(kdtk + "_target_sales")
 let targetSpd = Bot.getProperty(kdtk+"_target_spd")
 let ach = Math.round((spd / targetSpd) * 100)
 
-// ================= OUTPUT =================
+// ======================
+// GENERATE REKAP REPORT
+// ======================
+
 let msg =
 "KDTK  : " + kdtk + "\n" +
 "TOKO :  " + toko + "\n" +

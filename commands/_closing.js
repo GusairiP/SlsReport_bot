@@ -16,6 +16,37 @@
   group: 
 CMD*/
 
+/*
+========================================
+COMMAND : /closing
+MODULE  : CLOSING REPORT
+========================================
+
+FUNGSI:
+Menghitung prediksi closing bulan.
+
+FORMAT:
+/closing T001
+
+FORMULA:
+SPD = Total Sales / Hari Aktif
+
+Prediksi =
+SPD x 31
+
+OUTPUT:
+Total Sales
+SPD
+Prediksi
+Gap Target
+
+========================================
+*/
+
+// ======================
+// VALIDASI INPUT
+// ======================
+
 if(!params){
  Bot.sendMessage(
   "/closing KDTK"
@@ -25,6 +56,10 @@ if(!params){
 
 let kdtk =
 params.toUpperCase()
+
+// ======================
+// AKUMULASI SALES
+// ======================
 
 let totalSales = 0
 let hari = 0
@@ -49,8 +84,16 @@ if(hari == 0){
  return
 }
 
+// ======================
+// HITUNG SPD
+// ======================
+
 let spd = totalSales / hari
 let prediksi = spd * 31
+
+// ======================
+// AMBIL TARGET SALES
+// ======================
 
 let target =
 Number(
@@ -61,7 +104,10 @@ Number(
 
 let gap = target - prediksi
 
-// ================= OUTPUT ICONIC =================
+// ======================
+// GENERATE CLOSING REPORT
+// ======================
+
 let msg =
 "🎯 *CLOSING REPORT*\n" +
 "🏬 KDTK : " + kdtk +

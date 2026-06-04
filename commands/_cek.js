@@ -16,6 +16,31 @@
   group: 
 CMD*/
 
+/*
+========================================
+COMMAND : /cek
+MODULE  : DAILY CHECK
+========================================
+
+FUNGSI:
+Melihat detail sales harian dan growth.
+
+FORMAT:
+/cek T001 15
+
+OUTPUT:
+Sales
+Struk
+APC
+
+VS BULAN LALU:
+Growth Sales
+Growth Struk
+Growth APC
+
+========================================
+*/
+
 if(!params){
  Bot.sendMessage(
   "/cek KDTK TGL"

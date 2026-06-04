@@ -16,6 +16,46 @@
   group: 
 CMD*/
 
+/*
+========================================
+COMMAND : /target
+MODULE  : TARGET SETTING
+========================================
+
+FUNGSI:
+Menyimpan target sales dan target SPD.
+
+FORMAT:
+/target KDTK TARGETSALES TARGETSPD
+
+CONTOH:
+/target T001 278796424 8993424
+
+PROPERTY:
+T001_target_sales
+T001_target_spd
+
+OUTPUT:
+Target tersimpan
+
+========================================
+*/
+
+//admin access
+let admin =
+AdminPanel.getFieldValue({
+ panel_name:"SalesConfig",
+ field_name:"ADMIN_ID"
+})
+
+if(String(user.telegramid) != String(admin)){
+ Bot.sendMessage(
+  "⛔ Hanya admin yang dapat menggunakan command ini"
+ )
+ return
+}
+
+// command execution
 if(!params){
 Bot.sendMessage(
 "Format:\n\n/target KDTK TOTALTARGET TARGETSPD"
