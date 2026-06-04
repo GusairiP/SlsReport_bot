@@ -16,12 +16,41 @@
   group: 
 CMD*/
 
+/*
+========================================
+COMMAND : /trend
+MODULE  : TREND ANALYSIS
+========================================
+
+FUNGSI:
+Menampilkan histori SPD bulanan.
+
+FORMAT:
+/trend T001
+
+PROPERTY:
+T001_SPD_HISTORY
+
+OUTPUT:
+Trend SPD per bulan
+
+========================================
+*/
+
+// ======================
+// VALIDASI INPUT
+// ======================
+
 if (!params) {
  Bot.sendMessage("Format:\n/trend KDTK")
  return
 }
 
 let kdtk = params.toUpperCase()
+
+// ======================
+// AMBIL HISTORY SPD
+// ======================
 
 let trend =
 Bot.getProperty(kdtk + "_SPD_HISTORY")
@@ -52,6 +81,10 @@ for(let k in trend){
  })
 }
 
+// ======================
+// SORT BULAN DAN TAHUN
+// ======================
+
 // SORT BERDASARKAN BULAN & TAHUN (aman walau format "Mei 2026")
 list.sort(function(a,b){
 
@@ -71,7 +104,10 @@ list.sort(function(a,b){
  return aYear - bYear
 })
 
-// ================= OUTPUT ICONIC =================
+// ======================
+// GENERATE TREND REPORT
+// ======================
+
 let txt =
 "📊 *TREND RECORD SPD*\n" +
 "🏬 KDTK : " + kdtk +

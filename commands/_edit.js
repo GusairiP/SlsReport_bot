@@ -16,6 +16,40 @@
   group: 
 CMD*/
 
+/*
+========================================
+COMMAND : /edit
+MODULE  : DATA CORRECTION
+========================================
+
+FUNGSI:
+Mengubah data sales harian.
+
+FORMAT:
+/edit T001 15 9000000 280
+
+PROPERTY:
+T001_sales_15
+T001_struk_15
+
+========================================
+*/
+
+//admin access
+let admin =
+AdminPanel.getFieldValue({
+ panel_name:"SalesConfig",
+ field_name:"ADMIN_ID"
+})
+
+if(String(user.telegramid) != String(admin)){
+ Bot.sendMessage(
+  "⛔ Hanya admin yang dapat menggunakan command ini"
+ )
+ return
+}
+
+//command execution
 if(!params){
 Bot.sendMessage(
 "/edit KDTK TGL SALES STRUK"

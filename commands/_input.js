@@ -16,12 +16,49 @@
   group: 
 CMD*/
 
+/*
+========================================
+COMMAND : /input
+MODULE  : SALES HARIAN
+========================================
+
+FUNGSI:
+Menyimpan sales harian bulan berjalan.
+
+FORMAT:
+/input T001 15 8500000 275
+
+KETERANGAN:
+KDTK TGL SALES STRUK
+
+PROPERTY:
+T001_sales_15
+T001_struk_15
+index_T001
+
+OUTPUT:
+Sales
+Struk
+APC
+Data bulan lalu
+
+========================================
+*/
+
+// ======================
+// VALIDASI FORMAT INPUT
+// ======================
+
 if(!params){
 Bot.sendMessage(
 "Format:\n\n/input TDTK TGL SALES STRUK"
 )
 return
 }
+
+// ======================
+// PARSING PARAMETER
+// ======================
 
 let p = params.split(" ")
 
@@ -39,7 +76,7 @@ let sales = parseInt(p[2])
 let struk = parseInt(p[3])
 
 // ======================
-// CEK SALES BULAN LALU
+// VALIDASI DATA BULAN LALU
 // ======================
 
 let bl = Bot.getProperty(
@@ -66,11 +103,15 @@ return
 let keySales = kdtk + "_sales_" + tgl
 let keyStruk = kdtk + "_struk_" + tgl
 
+// ======================
+// SIMPAN SALES HARIAN
+// ======================
+
 Bot.setProperty(keySales, sales, "integer")
 Bot.setProperty(keyStruk, struk, "integer")
 
 // ======================
-// INDEX SYSTEM
+// UPDATE INDEX TANGGAL
 // ======================
 
 let index = Bot.getProperty("index_" + kdtk)
@@ -88,6 +129,11 @@ Bot.setProperty(
   index,
   "json"
 )
+
+// ======================
+// AMBIL DATA BULAN LALU
+// ======================
+
 let salesBL = bl[tgl].sales
 let spdBL = bl[tgl].spd
 let stdBL = bl[tgl].std
@@ -97,6 +143,10 @@ let apc = 0
 if(struk > 0){
 apc = Math.round(sales / struk)
 }
+
+// ======================
+// GENERATE OUTPUT
+// ======================
 
 Bot.sendMessage(
 "✅ Data tersimpan\n\n" +

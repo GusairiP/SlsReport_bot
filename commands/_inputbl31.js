@@ -56,29 +56,97 @@ Contoh salah:
   group: 
 CMD*/
 
+/*
+========================================
+COMMAND : /inputbl31
+MODULE  : BULAN LALU MASSAL
+========================================
+
+FUNGSI:
+Import data bulan lalu sekaligus.
+
+FORMAT:
+/inputbl31 T001
+
+1,8500000,275
+2,9200000,288
+3,8700000,270
+
+KETERANGAN:
+Tanggal,SPD,STD
+
+PROPERTY:
+T001_BL
+
+OUTPUT:
+Jumlah hari tersimpan
+
+========================================
+*/
+
+// ======================
+// VALIDASI ADMIN
+// ======================
+
+//admin access
+let admin =
+AdminPanel.getFieldValue({
+ panel_name:"SalesConfig",
+ field_name:"ADMIN_ID"
+})
+
+if(String(user.telegramid) != String(admin)){
+ Bot.sendMessage(
+  "⛔ Hanya admin yang dapat menggunakan command ini"
+ )
+ return
+}
+
+// ======================
+// VALIDASI KDTK
+// ======================
+
 if(!params){
  Bot.sendMessage(
-  "Format:\n\n/inputbl31 T001"
+  "Format:\n/inputbl31 T001"
  )
  return
 }
 
 let kdtk =
-params.toUpperCase().trim()
+params
+.replace(/\n/g," ")
+.split(" ")[0]
+.trim()
+.toUpperCase()
+
+// ======================
+// AMBIL DATA MULTILINE
+// ======================
 
 let rows =
 message.split("\n")
 
+let propertyName =
+kdtk + "_BL"
+
+// ======================
+// AMBIL PROPERTY BULAN LALU
+// ======================
+
 let data =
-Bot.getProperty(
- kdtk + "_BL"
-)
+Bot.getProperty(propertyName)
 
 if(!data){
  data = {}
 }
 
+
 let total = 0
+
+// ======================
+// LOOPING SETIAP BARIS DATA
+// ======================
 
 for(let i=0;i<rows.length;i++){
 
@@ -93,6 +161,10 @@ for(let i=0;i<rows.length;i++){
  if(row.indexOf("/inputbl31") == 0){
   continue
  }
+
+// ======================
+// PARSING FORMAT CSV
+// ======================
 
  let r = row.split(",")
 
@@ -113,6 +185,10 @@ for(let i=0;i<rows.length;i++){
   r[2].replace(/\./g,"")
  )
 
+// ======================
+// VALIDASI SPD DAN STD
+// ======================
+
  if(
   isNaN(spd) ||
   isNaN(std) ||
@@ -121,6 +197,10 @@ for(let i=0;i<rows.length;i++){
   continue
  }
 
+// ======================
+// SIMPAN DATA KE OBJECT
+// ======================
+  
  data[tgl] = {
   spd: spd,
   std: std,
@@ -130,11 +210,19 @@ for(let i=0;i<rows.length;i++){
  total++
 }
 
+// ======================
+// SIMPAN KE PROPERTY
+// ======================
+
 Bot.setProperty(
- kdtk + "_BL",
+ propertyName,
  data,
  "json"
 )
+
+// ======================
+// GENERATE OUTPUT
+// ======================
 
 Bot.sendMessage(
  "✅ Data bulan lalu berhasil disimpan\n\n"+
