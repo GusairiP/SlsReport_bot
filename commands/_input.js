@@ -144,6 +144,9 @@ if(struk > 0){
 apc = Math.round(sales / struk)
 }
 
+//update dashboard admin panel
+Bot.runCommand("/dashboard_refresh")
+
 // ======================
 // GENERATE OUTPUT
 // ======================

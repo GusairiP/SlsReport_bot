@@ -86,6 +86,9 @@ parseInt(p[2]),
 "integer"
 )
 
+//update dashboard admin panel
+Bot.runCommand("/dashboard_refresh")
+
 Bot.sendMessage(
 "✅ Target tersimpan\n\n"+
 "KDTK : "+kdtk+

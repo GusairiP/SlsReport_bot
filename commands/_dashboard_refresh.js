@@ -1,9 +1,9 @@
 /*CMD
-  command: /dashboard
+  command: /dashboard_refresh
   help: 
   need_reply: false
   auto_retry_time: 
-  folder: Administrator
+  folder: 
 
   <<ANSWER
 
@@ -18,8 +18,20 @@ CMD*/
 
 /*
 ========================================
-COMMAND : /dashboard
-MODULE  : EXECUTIVE DASHBOARD
+COMMAND : /dashboard_refresh
+MODULE  : DASHBOARD ENGINE
+========================================
+
+FUNGSI:
+Membangun dashboard admin secara otomatis.
+
+DIPANGGIL OLEH:
+- /input
+- /target
+- /daftartoko
+- /edit
+- /hapus
+
 ========================================
 */
 
@@ -39,9 +51,8 @@ if(!stores){
 // ======================
 
 let totalSales = 0
-let totalTarget = 0
-
 let totalSpd = 0
+let totalTarget = 0
 
 let overTarget = 0
 let underTarget = 0
@@ -113,8 +124,8 @@ for(let i=0;i<stores.length;i++){
  })
 
  totalSales += sales
- totalTarget += target
  totalSpd += spd
+ totalTarget += target
 }
 
 // ======================
@@ -126,7 +137,7 @@ ranking.sort(function(a,b){
 })
 
 // ======================
-// HITUNG SUMMARY
+// SUMMARY
 // ======================
 
 let avgSpd = 0
@@ -134,19 +145,37 @@ let avgSpd = 0
 if(stores.length > 0){
  avgSpd =
  Math.round(
-  totalSpd /
-  stores.length
+  totalSpd / stores.length
  )
 }
 
 let achArea = 0
 
 if(totalTarget > 0){
+
+ let avgTarget =
+ totalTarget / stores.length
+
  achArea =
  Math.round(
-  (avgSpd / (totalTarget/stores.length))*100
+  (avgSpd / avgTarget) * 100
  )
 }
+
+//Tambahkan Panel Ringkasan
+AdminPanel.setPanel({
+ panel_name:"Summary",
+ data:{
+  title:"📈 Achievement Area",
+  description:
+   "KDTK : "+stores.length+
+   "\nAch : "+achArea+"%"+
+   "\nOver : "+overTarget+
+   "\nUnder : "+underTarget,
+  icon:"leaderboard",
+  index:2
+ }
+})
 
 // ======================
 // GENERATE DASHBOARD
@@ -166,17 +195,13 @@ avgSpd.toLocaleString("id-ID") +
 "\n🎯 Ach Area : " +
 achArea + "%" +
 
-"\n🟢 Over Target : " +
+"\n🟢 Over : " +
 overTarget +
 
-"\n🔴 Under Target : " +
+"\n🔴 Under : " +
 underTarget +
 
-"\n\n🏆 TOP STORE\n\n"
-
-// ======================
-// TOP 5 STORE
-// ======================
+"\n\n🏆 TOP 5 STORE\n\n"
 
 let limit =
 Math.min(
@@ -186,11 +211,9 @@ Math.min(
 
 for(let i=0;i<limit;i++){
 
- let d =
- ranking[i]
+ let d = ranking[i]
 
  desc +=
-
  (i+1)+". "+d.kdtk+
 
  "\nSPD : Rp."+
@@ -200,9 +223,7 @@ for(let i=0;i<limit;i++){
  d.target.toLocaleString("id-ID")+
 
  "\nAch : "+
- d.ach+"%"+
-
- "\n\n"
+ d.ach+"%\n\n"
 }
 
 // ======================
@@ -218,12 +239,3 @@ AdminPanel.setPanel({
   index:1
  }
 })
-
-// ======================
-// OUTPUT
-// ======================
-Bot.runCommand("/dashboard_refresh")
-
-Bot.sendMessage(
- "✅ Dashboard berhasil diperbarui"
-)

@@ -133,6 +133,9 @@ Bot.setProperty(
  "json"
 )
 
+//update dashboard admin panel
+Bot.runCommand("/dashboard_refresh")
+
 Bot.sendMessage(
 "✅ Toko "+kdtk+" berhasil dibuat"
 )

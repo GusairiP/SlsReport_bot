@@ -261,9 +261,29 @@ let totalSTDbl = 0*/
 // HITUNG ACHIEVEMENT
 // ======================
 
-let targetSales = Bot.getProperty(kdtk + "_target_sales")
-let targetSpd = Bot.getProperty(kdtk+"_target_spd")
-let ach = Math.round((spd / targetSpd) * 100)
+//let targetSales = Bot.getProperty(kdtk + "_target_sales")
+//let targetSpd = Bot.getProperty(kdtk+"_target_spd")
+//let ach = Math.round((spd / targetSpd) * 100)
+let targetSales =
+Number(
+ Bot.getProperty(
+  kdtk + "_target_sales"
+ ) || 0
+)
+
+let targetSpd =
+Number(
+ Bot.getProperty(
+  kdtk + "_target_spd"
+ ) || 0
+)
+let ach = 0
+
+if(targetSpd > 0){
+ ach = Math.round(
+  (spd / targetSpd) * 100
+ )
+}
 
 // ======================
 // GENERATE REKAP REPORT
@@ -299,11 +319,11 @@ for (let i = 0; i < list.length; i++) {
   "_" + d.apc + "\n"
 }
 
-msg += "\nAKUMULASI SALES :\nRp." + totalSales.toLocaleString() + "\n\n"
+msg += "\nAKUMULASI SALES :\nRp." + totalSales.toLocaleString("id-ID") + "\n\n"
 
 msg +=
-"Target Sales : Rp." + targetSales.toLocaleString() + "\n" + "Target SPD   : Rp." + targetSpd.toLocaleString() + "\n" +
-"Spd                : Rp." + Math.round(spd).toLocaleString() + "\n" +
+"Target Sales : Rp." + targetSales.toLocaleString("id-ID") + "\n" + "Target SPD   : Rp." + targetSpd.toLocaleString("id-ID") + "\n" +
+"Spd                : Rp." + Math.round(spd).toLocaleString("id-ID") + "\n" +
 "Ach                : " + ach + "%"
 
 msg +=
