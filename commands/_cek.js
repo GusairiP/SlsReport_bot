@@ -28,6 +28,9 @@ Melihat detail sales harian dan growth.
 FORMAT:
 /cek T001 15
 
+DATA SOURCE:
+store_T001
+
 OUTPUT:
 Sales
 Struk
@@ -41,48 +44,61 @@ Growth APC
 ========================================
 */
 
-if(!params){
- Bot.sendMessage(
-  "/cek KDTK TGL"
- )
- return
+// ======================
+// VALIDASI INPUT
+// ======================
+
+if (!params) {
+  Bot.sendMessage("Format:\n\n/cek T001 15")
+
+  return
 }
 
 let p = params.split(" ")
 
-let kdtk = p[0].toUpperCase()
-let tgl = p[1]
+if (p.length < 2) {
+  Bot.sendMessage("Format salah\n\n/cek T001 15")
 
-// ======================
-// BULAN INI
-// ======================
-let sales =
-Bot.getProperty(
- kdtk + "_sales_" + tgl
-)
-
-let struk =
-Bot.getProperty(
- kdtk + "_struk_" + tgl
-)
-
-if(!sales || !struk){
- Bot.sendMessage("Data bulan ini tidak ditemukan")
- return
+  return
 }
 
-let apc =
-struk > 0
-? Math.round(sales / struk)
-: 0
+let kdtk = p[0].toUpperCase()
+
+let tgl = String(p[1])
 
 // ======================
-// BULAN LALU
+// AMBIL DATA TOKO
 // ======================
-let bl =
-Bot.getProperty(
- kdtk + "_BL"
-)
+
+let store = Bot.getProperty("store_" + kdtk)
+
+if (!store) {
+  Bot.sendMessage("❌ Toko tidak ditemukan")
+
+  return
+}
+
+// ======================
+// DATA BULAN INI
+// ======================
+
+if (!store.sales || !store.sales[tgl]) {
+  Bot.sendMessage("⚠️ Data tanggal " + tgl + " tidak ditemukan")
+
+  return
+}
+
+let sales = Number(store.sales[tgl].sales || 0)
+
+let struk = Number(store.sales[tgl].struk || 0)
+
+let apc = struk > 0 ? Math.round(sales / struk) : 0
+
+// ======================
+// DATA BULAN LALU
+// ======================
+
+let bl = store.bl || {}
 
 let salesBL = 0
 let strukBL = 0
@@ -92,81 +108,99 @@ let gSales = 0
 let gStruk = 0
 let gApc = 0
 
-if(bl && bl[tgl]){
+if (bl[tgl]) {
+  salesBL = Number(bl[tgl].spd || 0)
 
- salesBL = Number(bl[tgl].spd || 0)
- strukBL = Number(bl[tgl].std || 0)
+  strukBL = Number(bl[tgl].std || 0)
 
- apcBL =
- strukBL > 0
- ? Math.round(salesBL / strukBL)
- : 0
+  apcBL = Number(bl[tgl].apc || 0)
 
- // ======================
- // GROWTH CALC
- // ======================
+  // ======================
+  // GROWTH
+  // ======================
 
- if(salesBL > 0){
-  gSales =
-  ((sales - salesBL) / salesBL) * 100
- }
+  if (salesBL > 0) {
+    gSales = ((sales - salesBL) / salesBL) * 100
+  }
 
- if(strukBL > 0){
-  gStruk =
-  ((struk - strukBL) / strukBL) * 100
- }
+  if (strukBL > 0) {
+    gStruk = ((struk - strukBL) / strukBL) * 100
+  }
 
- if(apcBL > 0){
-  gApc =
-  ((apc - apcBL) / apcBL) * 100
- }
+  if (apcBL > 0) {
+    gApc = ((apc - apcBL) / apcBL) * 100
+  }
+}
+
+// ======================
+// ICON TREND
+// ======================
+
+function trend(v) {
+  if (v > 0) {
+    return "🟢 +"
+  }
+
+  if (v < 0) {
+    return "🔴 "
+  }
+
+  return "⚪ "
 }
 
 // ======================
 // OUTPUT
 // ======================
+
 let msg =
-"📊 *DETAIL SALES HARIAN*\n" +
-"🏬 KDTK : " + kdtk +
-"\n📅 Tanggal : " + tgl +
+  "📊 *DETAIL SALES HARIAN*\n\n" +
+  "🏪 KDTK : " +
+  kdtk +
+  "\n🏬 TOKO : " +
+  (store.nama || "-") +
+  "\n📅 Tanggal : " +
+  tgl +
+  "\n\n━━━━━━━━━━━━━━" +
+  "\n📈 *BULAN INI*" +
+  "\n━━━━━━━━━━━━━━" +
+  "\n💰 Sales : Rp." +
+  sales.toLocaleString("id-ID") +
+  "\n🧾 Struk : " +
+  struk.toLocaleString("id-ID") +
+  "\n🔥 APC : Rp." +
+  apc.toLocaleString("id-ID")
 
-"\n\n━━━━━━━━━━━━━━\n" +
-"📈 *BULAN INI*\n" +
-"━━━━━━━━━━━━━━\n" +
-"💰 Sales : Rp." +
-new Intl.NumberFormat('id-ID').format(sales) +
-"\n🧾 Struk : " + struk +
-"\n🔥 APC   : " +
-new Intl.NumberFormat('id-ID').format(apc)
-
+// ======================
 // BULAN LALU
-msg +=
-"\n\n━━━━━━━━━━━━━━\n" +
-"📉 *BULAN LALU*\n" +
-"━━━━━━━━━━━━━━\n" +
-"💰 Sales : Rp." +
-new Intl.NumberFormat('id-ID').format(salesBL) +
-"\n🧾 Struk : " + strukBL +
-"\n🔥 APC   : " +
-new Intl.NumberFormat('id-ID').format(apcBL)
+// ======================
 
+msg +=
+  "\n\n━━━━━━━━━━━━━━" +
+  "\n📉 *BULAN LALU*" +
+  "\n━━━━━━━━━━━━━━" +
+  "\n💰 Sales : Rp." +
+  salesBL.toLocaleString("id-ID") +
+  "\n🧾 Struk : " +
+  strukBL.toLocaleString("id-ID") +
+  "\n🔥 APC : Rp." +
+  apcBL.toLocaleString("id-ID")
+
+// ======================
 // GROWTH
-msg +=
-"\n\n━━━━━━━━━━━━━━\n" +
-"📊 *GROWTH VS BULAN LALU*\n" +
-"━━━━━━━━━━━━━━\n" +
-"💰 Sales : " +
-(gSales > 0 ? "🟢 +" : "🔴 ") +
-gSales.toFixed(2) + "%"
+// ======================
 
 msg +=
-"\n🧾 Struk : " +
-(gStruk > 0 ? "🟢 +" : "🔴 ") +
-gStruk.toFixed(2) + "%"
+  "\n\n━━━━━━━━━━━━━━" +
+  "\n📊 *GROWTH VS BULAN LALU*" +
+  "\n━━━━━━━━━━━━━━" +
+  "\n💰 Sales : " +
+  trend(gSales) +
+  gSales.toFixed(2) +
+  "%"
 
-msg +=
-"\n🔥 APC   : " +
-(gApc > 0 ? "🟢 +" : "🔴 ") +
-gApc.toFixed(2) + "%"
+msg += "\n🧾 Struk : " + trend(gStruk) + gStruk.toFixed(2) + "%"
+
+msg += "\n🔥 APC : " + trend(gApc) + gApc.toFixed(2) + "%"
 
 Bot.sendMessage(msg)
+

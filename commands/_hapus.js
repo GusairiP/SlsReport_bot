@@ -4,7 +4,10 @@
   need_reply: false
   auto_retry_time: 
   folder: 
-  answer: contoh format:
+
+  <<ANSWER
+
+  ANSWER
 
   <<KEYBOARD
 
@@ -25,58 +28,105 @@ Menghapus data sales harian.
 FORMAT:
 /hapus T001 15
 
-PROPERTY:
-T001_sales_15
-T001_struk_15
+DATA SOURCE:
+store_T001
 
 AKSI:
-Set value = 0
+Menghapus object sales pada tanggal tertentu.
 
 ========================================
 */
 
-//admin access
-let admin =
-AdminPanel.getFieldValue({
- panel_name:"SalesConfig",
- field_name:"ADMIN_ID"
+// ======================
+// VALIDASI ADMIN
+// ======================
+
+let admin = AdminPanel.getFieldValue({
+  panel_name: "SalesConfig",
+  field_name: "ADMIN_ID"
 })
 
-if(String(user.telegramid) != String(admin)){
- Bot.sendMessage(
-  "⛔ Hanya admin yang dapat menggunakan command ini"
- )
- return
+if (String(user.telegramid) != String(admin)) {
+  Bot.sendMessage("⛔ Hanya admin yang dapat menggunakan command ini")
+
+  return
 }
 
-//commad execution 
-if(!params){
-Bot.sendMessage(
-"/hapus KDTK TGL"
-)
-return
+// ======================
+// VALIDASI INPUT
+// ======================
+
+if (!params) {
+  Bot.sendMessage("Format:\n\n/hapus T001 15")
+
+  return
 }
 
 let p = params.split(" ")
 
+if (p.length < 2) {
+  Bot.sendMessage("Format salah\n\n/hapus T001 15")
+
+  return
+}
+
 let kdtk = p[0].toUpperCase()
-let tgl = p[1]
 
-Bot.setProperty(
-kdtk+"_sales_"+tgl,
-0,
-"integer"
-)
+let tgl = String(p[1])
 
-Bot.setProperty(
-kdtk+"_struk_"+tgl,
-0,
-"integer"
-)
+// ======================
+// AMBIL STORE
+// ======================
 
-//update dashboard admin panel
+let store = Bot.getProperty("store_" + kdtk)
+
+if (!store) {
+  Bot.sendMessage("❌ Store tidak ditemukan")
+
+  return
+}
+
+if (!store.sales || !store.sales[tgl]) {
+  Bot.sendMessage("⚠️ Data tanggal " + tgl + " tidak ditemukan")
+
+  return
+}
+
+// ======================
+// SIMPAN DATA LAMA
+// ======================
+
+let sales = Number(store.sales[tgl].sales || 0)
+
+let struk = Number(store.sales[tgl].struk || 0)
+
+// ======================
+// HAPUS DATA
+// ======================
+
+delete store.sales[tgl]
+
+Bot.setProperty("store_" + kdtk, store, "json")
+
+// ======================
+// UPDATE DASHBOARD
+// ======================
+
 Bot.runCommand("/dashboard_refresh")
 
+// ======================
+// OUTPUT
+// ======================
+
 Bot.sendMessage(
-"✅ Data tanggal "+tgl+" dihapus"
+  "✅ Data berhasil dihapus\n\n" +
+    "🏪 KDTK : " +
+    kdtk +
+    "\n📅 Tanggal : " +
+    tgl +
+    "\n💰 Sales : Rp." +
+    sales.toLocaleString("id-ID") +
+    "\n🧾 Struk : " +
+    struk.toLocaleString("id-ID")
 )
+

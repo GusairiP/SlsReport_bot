@@ -75,8 +75,8 @@ FORMAT:
 KETERANGAN:
 Tanggal,SPD,STD
 
-PROPERTY:
-T001_BL
+DATA TERSIMPAN:
+store_T001.bl
 
 OUTPUT:
 Jumlah hari tersimpan
@@ -88,144 +88,135 @@ Jumlah hari tersimpan
 // VALIDASI ADMIN
 // ======================
 
-//admin access
-let admin =
-AdminPanel.getFieldValue({
- panel_name:"SalesConfig",
- field_name:"ADMIN_ID"
+let admin = AdminPanel.getFieldValue({
+  panel_name: "SalesConfig",
+  field_name: "ADMIN_ID"
 })
 
-if(String(user.telegramid) != String(admin)){
- Bot.sendMessage(
-  "⛔ Hanya admin yang dapat menggunakan command ini"
- )
- return
+if (String(user.telegramid) != String(admin)) {
+  Bot.sendMessage("⛔ Hanya admin yang dapat menggunakan command ini")
+  return
 }
 
 // ======================
 // VALIDASI KDTK
 // ======================
 
-if(!params){
- Bot.sendMessage(
-  "Format:\n/inputbl31 T001"
- )
- return
+if (!params) {
+  Bot.sendMessage("Format:\n\n/inputbl31 T001")
+  return
 }
 
-let kdtk =
-params
-.replace(/\n/g," ")
-.split(" ")[0]
-.trim()
-.toUpperCase()
+let kdtk = params
+  .split(" ")[0]
+  .trim()
+  .toUpperCase()
+
+// ======================
+// CEK STORE
+// ======================
+
+let store = Bot.getProperty("store_" + kdtk)
+
+if (!store) {
+  Bot.sendMessage("❌ Store " + kdtk + " tidak ditemukan")
+  return
+}
+
+// ======================
+// INISIALISASI DATA BL
+// ======================
+
+if (!store.bl) {
+  store.bl = {}
+}
 
 // ======================
 // AMBIL DATA MULTILINE
 // ======================
 
-let rows =
-message.split("\n")
-
-let propertyName =
-kdtk + "_BL"
-
-// ======================
-// AMBIL PROPERTY BULAN LALU
-// ======================
-
-let data =
-Bot.getProperty(propertyName)
-
-if(!data){
- data = {}
-}
-
+let rows = message.split("\n")
 
 let total = 0
+let skip = 0
 
 // ======================
-// LOOPING SETIAP BARIS DATA
+// LOOPING DATA
 // ======================
 
-for(let i=0;i<rows.length;i++){
+for (let i = 0; i < rows.length; i++) {
+  let row = rows[i].trim()
 
- let row =
- rows[i].trim()
+  if (!row) {
+    continue
+  }
 
- if(!row){
-  continue
- }
+  // Lewati baris command
+  if (row.indexOf("/inputbl31") === 0) {
+    continue
+  }
 
- // lewati baris command
- if(row.indexOf("/inputbl31") == 0){
-  continue
- }
+  let r = row.split(",")
 
-// ======================
-// PARSING FORMAT CSV
-// ======================
+  if (r.length < 3) {
+    skip++
+    continue
+  }
 
- let r = row.split(",")
+  let tgl = String(r[0].trim())
 
- if(r.length < 3){
-  continue
- }
+  let spd = Number(r[1].trim().replace(/\./g, ""))
 
- let tgl =
- r[0].trim()
+  let std = Number(r[2].trim().replace(/\./g, ""))
 
- let spd =
- parseInt(
-  r[1].replace(/\./g,"")
- )
+  // ======================
+  // VALIDASI DATA
+  // ======================
 
- let std =
- parseInt(
-  r[2].replace(/\./g,"")
- )
+  if (isNaN(spd) || isNaN(std) || std <= 0) {
+    skip++
+    continue
+  }
 
-// ======================
-// VALIDASI SPD DAN STD
-// ======================
+  // ======================
+  // SIMPAN DATA
+  // ======================
 
- if(
-  isNaN(spd) ||
-  isNaN(std) ||
-  std <= 0
- ){
-  continue
- }
+  store.bl[tgl] = {
+    spd: spd,
+    std: std,
+    apc: Math.round(spd / std)
+  }
 
-// ======================
-// SIMPAN DATA KE OBJECT
-// ======================
-  
- data[tgl] = {
-  spd: spd,
-  std: std,
-  apc: Math.round(spd/std)
- }
-
- total++
+  total++
 }
 
 // ======================
-// SIMPAN KE PROPERTY
+// SIMPAN STORE
 // ======================
 
-Bot.setProperty(
- propertyName,
- data,
- "json"
-)
+Bot.setProperty("store_" + kdtk, store, "json")
 
 // ======================
-// GENERATE OUTPUT
+// UPDATE DASHBOARD
+// ======================
+
+Bot.runCommand("/dashboard_refresh")
+
+// ======================
+// OUTPUT
 // ======================
 
 Bot.sendMessage(
- "✅ Data bulan lalu berhasil disimpan\n\n"+
- "KDTK : "+kdtk+
- "\nJumlah Hari : "+total
+  "✅ Import data bulan lalu selesai\n\n" +
+    "🏪 KDTK : " +
+    kdtk +
+    "\n📅 Data Tersimpan : " +
+    total +
+    "\n⚠️ Data Dilewati : " +
+    skip +
+    "\n\nData tersimpan ke:\nstore_" +
+    kdtk +
+    ".bl"
 )
+

@@ -28,10 +28,8 @@ Menghitung growth MTD vs bulan lalu.
 FORMAT:
 /growth T001
 
-SUMBER DATA:
-T001_sales_x
-T001_struk_x
-T001_BL
+DATA SOURCE:
+store_T001
 
 OUTPUT:
 SPD Growth
@@ -42,29 +40,38 @@ APC Growth
 */
 
 // ======================
-// PARSING KDTK
+// VALIDASI INPUT
 // ======================
 
-let kdtk = ""
+if (!params) {
+  Bot.sendMessage("Format:\n\n/growth T001")
 
-if(params){
- kdtk = params.toString()
-  .trim()
-  .toUpperCase()
+  return
 }
 
-if(!kdtk){
- Bot.sendMessage(
-  "Format:\n/growth T001"
- )
- return
+let kdtk = params.toUpperCase().trim()
+
+// ======================
+// AMBIL DATA TOKO
+// ======================
+
+let store = Bot.getProperty("store_" + kdtk)
+
+if (!store) {
+  Bot.sendMessage("❌ Toko tidak ditemukan")
+
+  return
 }
 
 // ======================
-// TANGGAL BERJALAN
+// VALIDASI SALES
 // ======================
 
-let batasHari = new Date().getDate()
+if (!store.sales || Object.keys(store.sales).length == 0) {
+  Bot.sendMessage("⚠️ Belum ada data sales bulan berjalan")
+
+  return
+}
 
 // ======================
 // BULAN BERJALAN
@@ -74,55 +81,45 @@ let totalSalesNow = 0
 let totalStrukNow = 0
 let hariNow = 0
 
-// ======================
-// HITUNG BULAN BERJALAN
-// ======================
+for (let tgl in store.sales) {
+  let sales = Number(store.sales[tgl].sales || 0)
 
-for(let tgl=1; tgl<=batasHari; tgl++){
+  let struk = Number(store.sales[tgl].struk || 0)
 
- let sales = Bot.getProperty(
-  kdtk+"_sales_"+tgl
- )
+  if (struk > 0) {
+    totalSalesNow += sales
+    totalStrukNow += struk
 
- let struk = Bot.getProperty(
-  kdtk+"_struk_"+tgl
- )
-
- if(
-  sales != undefined &&
-  struk != undefined &&
-  Number(struk) > 0
- ){
-  totalSalesNow += Number(sales)
-  totalStrukNow += Number(struk)
-  hariNow++
- }
+    hariNow++
+  }
 }
 
-if(hariNow == 0){
- Bot.sendMessage(
-  "Belum ada data bulan berjalan"
- )
- return
+if (hariNow == 0) {
+  Bot.sendMessage("⚠️ Belum ada data sales valid")
+
+  return
 }
+
+// ======================
+// KPI BULAN BERJALAN
+// ======================
 
 let spdNow = totalSalesNow / hariNow
+
 let stdNow = totalStrukNow / hariNow
-let apcNow = totalSalesNow / totalStrukNow
+
+let apcNow = totalStrukNow > 0 ? totalSalesNow / totalStrukNow : 0
 
 // ======================
-// AMBIL DATA BULAN LALU
+// BULAN LALU
 // ======================
 
-let bl = Bot.getProperty(
- kdtk + "_BL"
-)
+let bl = store.bl
 
-if(!bl){
- Bot.sendMessage(
-  "Data bulan lalu tidak ditemukan"
- )
- return
+if (!bl || Object.keys(bl).length == 0) {
+  Bot.sendMessage("⚠️ Data bulan lalu belum tersedia")
+
+  return
 }
 
 let totalSPDbl = 0
@@ -130,102 +127,98 @@ let totalSTDbl = 0
 let totalAPCbl = 0
 let hariBL = 0
 
-for(let tgl=1; tgl<=batasHari; tgl++){
-
- let d = bl[tgl]
-
- if(d){
+for (let tgl in bl) {
+  let d = bl[tgl]
 
   totalSPDbl += Number(d.spd || 0)
+
   totalSTDbl += Number(d.std || 0)
+
   totalAPCbl += Number(d.apc || 0)
 
   hariBL++
- }
 }
 
-if(hariBL == 0){
- Bot.sendMessage(
-  "Data bulan lalu kosong"
- )
- return
+if (hariBL == 0) {
+  Bot.sendMessage("⚠️ Data bulan lalu kosong")
+
+  return
 }
 
 let spdBL = totalSPDbl / hariBL
+
 let stdBL = totalSTDbl / hariBL
+
 let apcBL = totalAPCbl / hariBL
 
 // ======================
 // HITUNG GROWTH
 // ======================
 
-let gSPD =
-spdBL > 0
-? ((spdNow - spdBL) / spdBL) * 100
-: 0
+let gSPD = spdBL > 0 ? ((spdNow - spdBL) / spdBL) * 100 : 0
 
-let gSTD =
-stdBL > 0
-? ((stdNow - stdBL) / stdBL) * 100
-: 0
+let gSTD = stdBL > 0 ? ((stdNow - stdBL) / stdBL) * 100 : 0
 
-let gAPC =
-apcBL > 0
-? ((apcNow - apcBL) / apcBL) * 100
-: 0
+let gAPC = apcBL > 0 ? ((apcNow - apcBL) / apcBL) * 100 : 0
 
-function trend(v){
- if(v > 0) return "🟢"
- if(v < 0) return "🔴"
- return "⚪"
+// ======================
+// ICON TREND
+// ======================
+
+function trend(v) {
+  if (v > 0) {
+    return "🟢"
+  }
+
+  if (v < 0) {
+    return "🔴"
+  }
+
+  return "⚪"
 }
 
 // ======================
-// GENERATE OUTPUT
+// OUTPUT
 // ======================
 
-Bot.sendMessage(
-"📈 GROWTH SALES MTD\n\n"+
+let msg =
+  "📈 *GROWTH SALES MTD*\n\n" +
+  "🏪 KDTK : " +
+  kdtk +
+  "\n🏬 TOKO : " +
+  store.nama +
+  "\n\n📅 Hari Data : " +
+  hariNow +
+  "\n\n📊 *SPD*" +
+  "\nNow : Rp." +
+  Math.round(spdNow).toLocaleString("id-ID") +
+  "\nBL : Rp." +
+  Math.round(spdBL).toLocaleString("id-ID") +
+  "\nGrowth : " +
+  trend(gSPD) +
+  " " +
+  gSPD.toFixed(2) +
+  "%" +
+  "\n\n📊 *STD*" +
+  "\nNow : " +
+  Math.round(stdNow).toLocaleString("id-ID") +
+  "\nBL : " +
+  Math.round(stdBL).toLocaleString("id-ID") +
+  "\nGrowth : " +
+  trend(gSTD) +
+  " " +
+  gSTD.toFixed(2) +
+  "%" +
+  "\n\n📊 *APC*" +
+  "\nNow : Rp." +
+  Math.round(apcNow).toLocaleString("id-ID") +
+  "\nBL : Rp." +
+  Math.round(apcBL).toLocaleString("id-ID") +
+  "\nGrowth : " +
+  trend(gAPC) +
+  " " +
+  gAPC.toFixed(2) +
+  "%"
 
-"KDTK : "+kdtk+
-"\nPeriode : 1-"+batasHari+
+Bot.sendMessage(msg)
 
-"\n\n🟢 SPD"+
-"\nNow : Rp."+
-new Intl.NumberFormat('id-ID')
-.format(Math.round(spdNow))+
-
-"\nBL : Rp."+
-new Intl.NumberFormat('id-ID')
-.format(Math.round(spdBL))+
-
-"\nGrowth : "+
-trend(gSPD)+" "+
-gSPD.toFixed(2)+"%"+
-
-"\n\n🟢 STD"+
-"\nNow : "+
-new Intl.NumberFormat('id-ID')
-.format(Math.round(stdNow))+
-
-"\nBL : "+
-new Intl.NumberFormat('id-ID')
-.format(Math.round(stdBL))+
-
-"\nGrowth : "+
-trend(gSTD)+" "+
-gSTD.toFixed(2)+"%"+
-
-"\n\n🟢 APC"+
-"\nNow : Rp."+
-new Intl.NumberFormat('id-ID')
-.format(Math.round(apcNow))+
-
-"\nBL : Rp."+
-new Intl.NumberFormat('id-ID')
-.format(Math.round(apcBL))+
-
-"\nGrowth : "+
-trend(gAPC)+" "+
-gAPC.toFixed(2)+"%"
-)

@@ -19,135 +19,84 @@ CMD*/
 /*
 ========================================
 COMMAND : /start
-MODULE  : MAIN MENU
-========================================
-
-FUNGSI:
-Menampilkan menu utama bot.
-
-AKSES:
-Semua user
-
-OUTPUT:
-Menu navigasi bot
-
+MODULE  : MAIN MENU (FIXED)
 ========================================
 */
-
-//admin access
-let status =
-AdminPanel.getFieldValue({
- panel_name:"SalesConfig",
- field_name:"BOT_STATUS"
-})
-
-if(!status){
- Bot.sendMessage(
-  "⛔ Bot sedang dinonaktifkan admin"
- )
- return
-}
-
-/*Bot.sendKeyboard(
-"/daftartoko,/target,/input,/rekap,/growth,/closing,/trend"
-)*/
-
-// ======================
-// TAMPILKAN INFORMASI BOT
-// ======================
-Bot.sendMessage(
-"👋 *Selamat datang di BOT SALES*\n\n"+
-"📊 Bot ini digunakan untuk monitoring sales harian, rekap, growth, dan closing report.\n\n"+
-"━━━━━━━━━━━━━━\n"+
-"👨‍💼 *ADMIN SUPPORT*\n"+
-"💬 Hubungi Admin: @gusairiputra\n\n"+
-"━━━━━━━━━━━━━━\n"+
-"⚡ Gunakan menu atau perintah bot untuk mulai.\n\n" + "Silakan daftarkan toko terlebih dahulu menggunakan perintah /daftartoko atau menu berikut."
-)
-
-// ======================
-// SUSUN MENU USER
-// ======================
-
-let rows = [
- [
-  {
-   title:"🏪 Daftar Toko",
-   command:"/daftartoko"
-  },
-  {
-   title:"🎯 Target",
-   command:"/target"
-  }
- ],
- [
-  {
-   title:"📝 Input Sales",
-   command:"/input"
-  },
-  {
-   title:"📥 Input BL",
-   command:"/inputbl"
-  }
- ],
- [
-  {
-   title:"📊 Rekap",
-   command:"/rekap"
-  },
-  {
-   title:"📈 Growth",
-   command:"/growth"
-  }
- ],
- [
-  {
-   title:"🔔 Closing",
-   command:"/closing"
-  },
-  {
-   title:"📉 Trend",
-   command:"/trend"
-  }
- ],
- [
-  {
-   title:"🔍 Cek Harian",
-   command:"/cek"
-  }
- ]
-]
-
-// ======================
-// CEK HAK AKSES ADMIN
-// ======================
-
-// tampilkan tombol admin hanya untuk admin
-let admin =
-AdminPanel.getFieldValue({
- panel_name:"SalesConfig",
- field_name:"ADMIN_ID"
-})
-
-if(String(user.telegramid) == String(admin)){
-  
-// ======================
-// TAMPILKAN MENU
-// ======================
-  
- rows.push([
-  {
-   title:"⚙️ Admin Panel",
-   command:"/admin"
-  }
- ])
-}
 
 // ======================
 // CEK STATUS BOT
 // ======================
-Bot.sendInlineKeyboard(
- rows,
- "📋 *MENU UTAMA SALES REPORT*\n\n"+
- "Pilih menu yang ingin digunakan:"
-)
+
+let status = AdminPanel.getFieldValue({
+  panel_name: "SalesConfig",
+  field_name: "BOT_STATUS"
+})
+
+// handle string "false", "0", null, undefined
+if (status == "false" || status == "0" || status == false || status == null) {
+  Bot.sendMessage("⛔ Bot sedang dinonaktifkan admin")
+  return
+}
+
+// ======================
+// ADMIN DATA
+// ======================
+
+let adminId = AdminPanel.getFieldValue({
+  panel_name: "SalesConfig",
+  field_name: "ADMIN_ID"
+})
+
+let isAdmin = String(user.telegramid) == String(adminId)
+
+// ======================
+// MESSAGE INTRO
+// ======================
+
+let intro =
+  "👋 *Selamat datang di BOT SALES*\n\n" +
+  "📊 Bot ini digunakan untuk monitoring sales harian, rekap, growth, dan closing report.\n\n" +
+  "━━━━━━━━━━━━━━\n" +
+  "👨‍💼 *ADMIN SUPPORT*\n" +
+  "💬 Hubungi Admin: @gusairiputra\n\n" +
+  "━━━━━━━━━━━━━━\n" +
+  "⚡ Silakan pilih menu di bawah untuk mulai."
+
+// ======================
+// INLINE KEYBOARD MENU
+// ======================
+
+let rows = [
+  [
+    { title: "🏪 Daftar Toko", command: "/daftartoko" },
+    { title: "🎯 Target", command: "/target" }
+  ],
+  [
+    { title: "📝 Input Sales", command: "/input" },
+    { title: "📥 Input BL", command: "/inputbl" }
+  ],
+  [
+    { title: "📊 Rekap", command: "/rekap" },
+    { title: "📈 Growth", command: "/growth" }
+  ],
+  [
+    { title: "🔔 Closing", command: "/closing" },
+    { title: "📉 Trend", command: "/trend" }
+  ],
+  [{ title: "🔍 Cek Harian", command: "/cek" }]
+]
+
+// ======================
+// ADMIN MENU (OPTIONAL)
+// ======================
+
+if (isAdmin) {
+  rows.push([{ title: "⚙️ Admin Panel", command: "/admin" }])
+}
+
+// ======================
+// OUTPUT (ONLY ONCE)
+// ======================
+
+Bot.sendInlineKeyboard(rows, "📋 *MENU UTAMA SALES REPORT*\n\n" + intro)
+

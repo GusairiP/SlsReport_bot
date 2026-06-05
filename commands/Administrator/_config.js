@@ -16,56 +16,133 @@
   group: 
 CMD*/
 
-var panel = {
- title: "Sales Report Config",
- description: "Konfigurasi utama bot sales",
- index: 0,
- icon: "stats-chart",
- button_title: "SIMPAN",
+/*
+========================================
+COMMAND : /config
+MODULE  : BOT CONFIGURATION
+========================================
 
- fields: [
+FUNGSI:
+Pusat konfigurasi sistem BOT SALES.
 
-  {
-   name: "ADMIN_ID",
-   title: "Telegram Admin ID",
-   type: "string",
-   icon: "person"
-  },
+FITUR:
+- Status Bot
+- Admin Aktif
+- Total Store
+- Default Target
+- Shortcut Menu Admin
 
-  {
-   name: "ADMIN_USERNAME",
-   title: "Username Admin",
-   type: "string",
-   icon: "chatbubble"
-  },
+========================================
+*/
 
-  {
-   name: "DEFAULT_TARGET_SPD",
-   title: "Default Target SPD",
-   type: "integer",
-   icon: "cash"
-  },
+// ======================
+// VALIDASI ADMIN
+// ======================
 
-  {
-   name: "DEFAULT_TARGET_SALES",
-   title: "Default Target Sales",
-   type: "integer",
-   icon: "trending-up"
-  },
-
-  {
-   name: "BOT_STATUS",
-   title: "Aktifkan Bot",
-   type: "checkbox",
-   icon: "power",
-   value: true
-  }
- ]
-}
-
-AdminPanel.setPanel({
- panel_name: "SalesConfig",
- data: panel
+let admin = AdminPanel.getFieldValue({
+  panel_name: "SalesConfig",
+  field_name: "ADMIN_ID"
 })
 
-Bot.sendMessage("✅ Admin Panel berhasil dibuat")
+if (String(user.telegramid) != String(admin)) {
+  Bot.sendMessage("⛔ Akses ditolak")
+  return
+}
+
+// ======================
+// AMBIL CONFIG
+// ======================
+
+let status = AdminPanel.getFieldValue({
+  panel_name: "SalesConfig",
+  field_name: "BOT_STATUS"
+})
+
+let defaultSales = Number(
+  AdminPanel.getFieldValue({
+    panel_name: "SalesConfig",
+    field_name: "DEFAULT_TARGET_SALES"
+  }) || 0
+)
+
+let defaultSpd = Number(
+  AdminPanel.getFieldValue({
+    panel_name: "SalesConfig",
+    field_name: "DEFAULT_TARGET_SPD"
+  }) || 0
+)
+
+// ======================
+// DATA STORE
+// ======================
+
+let stores = Bot.getProperty("STORE_LIST") || []
+
+// ======================
+// GENERATE MENU
+// ======================
+
+Bot.sendInlineKeyboard(
+  [
+    [
+      {
+        title: status ? "🔴 Nonaktifkan Bot" : "🟢 Aktifkan Bot",
+
+        command: status ? "/bot_off" : "/bot_on"
+      }
+    ],
+
+    [
+      {
+        title: "📊 Refresh Dashboard",
+        command: "/dashboard_refresh"
+      }
+    ],
+
+    [
+      {
+        title: "🏪 Store List",
+        command: "/storelist"
+      },
+      {
+        title: "📈 Ranking",
+        command: "/ranking"
+      }
+    ],
+
+    [
+      {
+        title: "🚨 Alert Store",
+        command: "/alert"
+      }
+    ],
+
+    [
+      {
+        title: "👨‍💼 Admin Center",
+        command: "/admin"
+      }
+    ]
+  ],
+
+  "⚙️ *BOT CONFIGURATION*\n\n" +
+    "━━━━━━━━━━━━━━\n" +
+    "🤖 *SYSTEM INFO*\n" +
+    "━━━━━━━━━━━━━━\n" +
+    "Status Bot : " +
+    (status ? "🟢 Aktif" : "🔴 Nonaktif") +
+    "\nAdmin ID : " +
+    admin +
+    "\nTotal Store : " +
+    stores.length +
+    "\n\n━━━━━━━━━━━━━━\n" +
+    "🎯 *DEFAULT TARGET*\n" +
+    "━━━━━━━━━━━━━━\n" +
+    "Sales : Rp." +
+    defaultSales.toLocaleString("id-ID") +
+    "\nSPD : Rp." +
+    defaultSpd.toLocaleString("id-ID") +
+    "\n\n━━━━━━━━━━━━━━\n" +
+    "⚡ Gunakan tombol di bawah untuk mengelola sistem."
+)
+
