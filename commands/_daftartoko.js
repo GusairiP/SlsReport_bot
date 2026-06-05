@@ -43,99 +43,135 @@ Toko berhasil dibuat
 */
 
 //admin access
-let admin =
-AdminPanel.getFieldValue({
- panel_name:"SalesConfig",
- field_name:"ADMIN_ID"
+let admin = AdminPanel.getFieldValue({
+  panel_name: "SalesConfig",
+  field_name: "ADMIN_ID"
 })
 
-if(String(user.telegramid) != String(admin)){
- Bot.sendMessage(
-  "⛔ Hanya admin yang dapat menggunakan command ini"
- )
- return
+if (String(user.telegramid) != String(admin)) {
+  Bot.sendMessage("⛔ Hanya admin yang dapat menggunakan command ini")
+  return
 }
 
 //code utama
-if(!params){
-Bot.sendMessage(
-"/daftartoko TXXX,IDM LAMPUNG,AM,AS"
-)
-return
+if (!params) {
+  Bot.sendMessage("/daftartoko TXXX,IDM LAMPUNG,AM,AS")
+  return
 }
 
-let d =
-params.split(",")
+let d = params.split(",")
 
-let kdtk =
-d[0].trim().toUpperCase()
+// ======================
+// VALIDASI PARAMETER
+// ======================
 
-//otomatis isi target saat daftar toko
-let targetSales =
-AdminPanel.getFieldValue({
- panel_name:"SalesConfig",
- field_name:"DEFAULT_TARGET_SALES"
-})
+if (d.length < 4) {
+  Bot.sendMessage("Format salah\n\n" + "/daftartoko T001,IDM LAMPUNG,ARI,DONI")
 
-let targetSpd =
-AdminPanel.getFieldValue({
- panel_name:"SalesConfig",
- field_name:"DEFAULT_TARGET_SPD"
-})
+  return
+}
 
-Bot.setProperty(
- kdtk+"_target_sales",
- Number(targetSales),
- "integer"
+let kdtk = d[0].trim().toUpperCase()
+
+let nama = d[1].trim().toUpperCase()
+
+let am = d[2].trim().toUpperCase()
+
+let as = d[3].trim().toUpperCase()
+
+// ======================
+// CEK DUPLIKAT
+// ======================
+
+let oldStore = Bot.getProperty("store_" + kdtk)
+
+if (oldStore) {
+  Bot.sendMessage("⚠️ KDTK " + kdtk + " sudah terdaftar")
+
+  return
+}
+
+// ======================
+// TARGET DEFAULT
+// ======================
+
+let targetSales = Number(
+  AdminPanel.getFieldValue({
+    panel_name: "SalesConfig",
+    field_name: "DEFAULT_TARGET_SALES"
+  }) || 0
 )
 
-Bot.setProperty(
- kdtk+"_target_spd",
- Number(targetSpd),
- "integer"
+let targetSpd = Number(
+  AdminPanel.getFieldValue({
+    panel_name: "SalesConfig",
+    field_name: "DEFAULT_TARGET_SPD"
+  }) || 0
 )
 
-Bot.setProperty(
-kdtk+"_nama",
-d[1].trim().toUpperCase(),
-"string"
-)
+// ======================
+// OBJECT STORE
+// ======================
 
-Bot.setProperty(
-kdtk+"_am",
-d[2].trim().toUpperCase(),
-"string"
-)
+let store = {
+  kdtk: kdtk,
 
-Bot.setProperty(
-kdtk+"_as",
-d[3].trim().toUpperCase(),
-"string"
-)
+  nama: nama,
+
+  am: am,
+
+  as: as,
+
+  target: {
+    sales: targetSales,
+
+    spd: targetSpd
+  },
+
+  sales: {},
+
+  bl: {},
+
+  history: {},
+
+  created_at: new Date().toISOString()
+}
+
+// ======================
+// SIMPAN STORE
+// ======================
+
+Bot.setProperty("store_" + kdtk, store, "json")
 
 //simpan daftar toko /u admin
-let stores =
-Bot.getProperty("STORE_LIST")
+let stores = Bot.getProperty("STORE_LIST")
 
-if(!stores){
- stores = []
+if (!stores) {
+  stores = []
 }
 
-if(
- stores.indexOf(kdtk) == -1
-){
- stores.push(kdtk)
+if (stores.indexOf(kdtk) == -1) {
+  stores.push(kdtk)
 }
 
-Bot.setProperty(
- "STORE_LIST",
- stores,
- "json"
-)
+Bot.setProperty("STORE_LIST", stores, "json")
 
 //update dashboard admin panel
 Bot.runCommand("/dashboard_refresh")
 
 Bot.sendMessage(
-"✅ Toko "+kdtk+" berhasil dibuat"
+  "✅ Toko berhasil dibuat\n\n" +
+    "🏪 KDTK : " +
+    kdtk +
+    "\n📍 Nama : " +
+    nama +
+    "\n👨 AM : " +
+    am +
+    "\n👨 AS : " +
+    as +
+    "\n\n🎯 Target Sales : Rp." +
+    targetSales.toLocaleString("id-ID") +
+    "\n📈 Target SPD : Rp." +
+    targetSpd.toLocaleString("id-ID")
 )
+

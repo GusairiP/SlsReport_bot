@@ -29,18 +29,18 @@ FORMAT:
 /inputbl T001 1 8500000 275
 
 KETERANGAN:
-TGL SPD STD
+KDTK TGL SPD STD
 
-PROPERTY:
-T001_BL
+DATA TERSIMPAN:
+store_T001.bl
 
 STRUKTUR:
 {
- "1":{
-   spd:8500000,
-   std:275,
-   apc:30909
- }
+  "1":{
+    spd:8500000,
+    std:275,
+    apc:30909
+  }
 }
 
 OUTPUT:
@@ -55,108 +55,115 @@ APC
 // VALIDASI ADMIN
 // ======================
 
-//admin access
-let admin =
-AdminPanel.getFieldValue({
- panel_name:"SalesConfig",
- field_name:"ADMIN_ID"
+let admin = AdminPanel.getFieldValue({
+  panel_name: "SalesConfig",
+  field_name: "ADMIN_ID"
 })
 
-if(String(user.telegramid) != String(admin)){
- Bot.sendMessage(
-  "⛔ Hanya admin yang dapat menggunakan command ini"
- )
- return
+if (String(user.telegramid) != String(admin)) {
+  Bot.sendMessage("⛔ Hanya admin yang dapat menggunakan command ini")
+  return
 }
 
 // ======================
-// VALIDASI FORMAT INPUT
+// VALIDASI FORMAT
 // ======================
 
-//command execution
-if(!params){
-Bot.sendMessage(
-"Format:\n\n/inputbl T001 1 8500000 275"
-)
-return
+if (!params) {
+  Bot.sendMessage("Format:\n\n/inputbl T001 1 8500000 275")
+  return
 }
 
-let p = params.split(" ")
+let p = params.trim().split(" ")
 
-if(p.length < 4){
-Bot.sendMessage(
-"Format salah\n\n/inputbl T001 1 8500000 275"
-)
-return
+if (p.length < 4) {
+  Bot.sendMessage("Format salah\n\n/inputbl T001 1 8500000 275")
+  return
 }
 
 // ======================
-// PARSING PARAMETER
+// PARSING DATA
 // ======================
 
 let kdtk = p[0].toUpperCase()
-let tgl = p[1]
+let tgl = String(p[1])
 
-let spd = parseInt(p[2])
-let std = parseInt(p[3])
+let spd = Number(p[2].replace(/\./g, ""))
 
-if(isNaN(spd) || isNaN(std)){
-Bot.sendMessage("SPD dan STD harus berupa angka")
-return
+let std = Number(p[3].replace(/\./g, ""))
+
+// ======================
+// VALIDASI ANGKA
+// ======================
+
+if (isNaN(spd) || isNaN(std)) {
+  Bot.sendMessage("❌ SPD dan STD harus berupa angka")
+  return
 }
 
-if(std <= 0){
-Bot.sendMessage("STD tidak boleh 0")
-return
+if (std <= 0) {
+  Bot.sendMessage("❌ STD tidak boleh 0")
+  return
 }
 
 // ======================
-// HITUNG APC BULAN LALU
+// CEK STORE
+// ======================
+
+let store = Bot.getProperty("store_" + kdtk)
+
+if (!store) {
+  Bot.sendMessage("❌ Store " + kdtk + " tidak ditemukan")
+  return
+}
+
+// ======================
+// HITUNG APC
 // ======================
 
 let apc = Math.round(spd / std)
 
 // ======================
-// AMBIL DATA PROPERTY
+// INISIALISASI DATA BL
 // ======================
 
-let data = Bot.getProperty(
-kdtk + "_BL"
-)
-
-if(!data){
-data = {}
+if (!store.bl) {
+  store.bl = {}
 }
 
 // ======================
-// UPDATE DATA BULAN LALU
+// SIMPAN DATA BL
 // ======================
 
-data[tgl] = {
-spd: spd,
-std: std,
-apc: apc
+store.bl[tgl] = {
+  spd: spd,
+  std: std,
+  apc: apc
 }
 
-// ======================
-// SIMPAN PROPERTY
-// ======================
-
-Bot.setProperty(
-kdtk + "_BL",
-data,
-"json"
-)
+Bot.setProperty("store_" + kdtk, store, "json")
 
 // ======================
-// GENERATE OUTPUT
+// UPDATE DASHBOARD
+// ======================
+
+Bot.runCommand("/dashboard_refresh")
+
+// ======================
+// OUTPUT
 // ======================
 
 Bot.sendMessage(
-"✅ Sales bulan lalu tersimpan\n\n"+
-"KDTK : "+kdtk+
-"\nTanggal : "+tgl+
-"\nSPD : Rp."+new Intl.NumberFormat('id-ID').format(spd)+
-"\nSTD : "+new Intl.NumberFormat('id-ID').format(std)+
-"\nAPC : "+new Intl.NumberFormat('id-ID').format(apc)
+  "✅ Data bulan lalu berhasil disimpan\n\n" +
+    "🏪 KDTK : " +
+    kdtk +
+    "\n📅 Tanggal : " +
+    tgl +
+    "\n💰 SPD : Rp." +
+    spd.toLocaleString("id-ID") +
+    "\n🧾 STD : " +
+    std.toLocaleString("id-ID") +
+    "\n🔥 APC : Rp." +
+    apc.toLocaleString("id-ID")
 )
+

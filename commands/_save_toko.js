@@ -18,34 +18,29 @@ CMD*/
 
 let d = message.split(",")
 
-if(d.length < 4){
- Bot.sendMessage("Format salah")
- return
+if (d.length < 4) {
+  Bot.sendMessage("Format salah")
+  return
 }
 
 let data = {
- kdtk: d[0].trim(),
- toko: d[1].trim(),
- am: d[2].trim(),
- as: d[3].trim(),
+  kdtk: d[0].trim(),
+  toko: d[1].trim(),
+  am: d[2].trim(),
+  as: d[3].trim(),
 
- target_sales: 0,
- target_spd: 0,
+  target_sales: 0,
+  target_spd: 0,
 
- bulan_lalu: " ",
- spd_bulan_lalu: 0,
- std_bulan_lalu: 0,
- apc_bulan_lalu: 0,
+  bulan_lalu: " ",
+  spd_bulan_lalu: 0,
+  std_bulan_lalu: 0,
+  apc_bulan_lalu: 0,
 
- sales: {}
+  sales: {}
 }
 
-Bot.setProperty(
-"store_"+data.kdtk,
-data,
-"json"
-)
+Bot.setProperty("store_" + data.kdtk, data, "json")
 
-Bot.sendMessage(
-"✅ Toko "+data.kdtk+" berhasil dibuat"
-)
+Bot.sendMessage("✅ Toko " + data.kdtk + " berhasil dibuat")
+

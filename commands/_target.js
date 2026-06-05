@@ -23,75 +23,119 @@ MODULE  : TARGET SETTING
 ========================================
 
 FUNGSI:
-Menyimpan target sales dan target SPD.
+Mengatur target sales dan SPD toko.
 
 FORMAT:
-/target KDTK TARGETSALES TARGETSPD
-
-CONTOH:
 /target T001 278796424 8993424
 
-PROPERTY:
-T001_target_sales
-T001_target_spd
+DATA SOURCE:
+store_T001.target
 
 OUTPUT:
-Target tersimpan
+Target Sales
+Target SPD
 
 ========================================
 */
 
-//admin access
-let admin =
-AdminPanel.getFieldValue({
- panel_name:"SalesConfig",
- field_name:"ADMIN_ID"
+// ======================
+// VALIDASI ADMIN
+// ======================
+
+let admin = AdminPanel.getFieldValue({
+  panel_name: "SalesConfig",
+  field_name: "ADMIN_ID"
 })
 
-if(String(user.telegramid) != String(admin)){
- Bot.sendMessage(
-  "⛔ Hanya admin yang dapat menggunakan command ini"
- )
- return
+if (String(user.telegramid) != String(admin)) {
+  Bot.sendMessage("⛔ Hanya admin yang dapat menggunakan command ini")
+
+  return
 }
 
-// command execution
-if(!params){
-Bot.sendMessage(
-"Format:\n\n/target KDTK TOTALTARGET TARGETSPD"
-)
-return
+// ======================
+// VALIDASI INPUT
+// ======================
+
+if (!params) {
+  Bot.sendMessage("Format:\n\n/target T001 278796424 8993424")
+
+  return
 }
 
 let p = params.split(" ")
 
-if(p.length < 3){
-Bot.sendMessage(
-"Format salah\n\n/target TXXX 278796424 8993424"
-)
-return
+if (p.length < 3) {
+  Bot.sendMessage("Format salah\n\n/target T001 278796424 8993424")
+
+  return
 }
+
+// ======================
+// PARSING PARAMETER
+// ======================
 
 let kdtk = p[0].toUpperCase()
 
-Bot.setProperty(
-kdtk+"_target_sales",
-parseInt(p[1]),
-"integer"
-)
+let targetSales = parseInt(p[1])
 
-Bot.setProperty(
-kdtk+"_target_spd",
-parseInt(p[2]),
-"integer"
-)
+let targetSpd = parseInt(p[2])
 
-//update dashboard admin panel
+if (isNaN(targetSales) || isNaN(targetSpd)) {
+  Bot.sendMessage("❌ Target harus berupa angka")
+
+  return
+}
+
+if (targetSales <= 0 || targetSpd <= 0) {
+  Bot.sendMessage("❌ Target harus lebih besar dari 0")
+
+  return
+}
+
+// ======================
+// AMBIL DATA TOKO
+// ======================
+
+let store = Bot.getProperty("store_" + kdtk)
+
+if (!store) {
+  Bot.sendMessage("❌ Toko " + kdtk + " tidak ditemukan")
+
+  return
+}
+
+// ======================
+// UPDATE TARGET
+// ======================
+
+store.target = {
+  sales: targetSales,
+
+  spd: targetSpd
+}
+
+Bot.setProperty("store_" + kdtk, store, "json")
+
+// ======================
+// REFRESH DASHBOARD
+// ======================
+
 Bot.runCommand("/dashboard_refresh")
 
+// ======================
+// OUTPUT
+// ======================
+
 Bot.sendMessage(
-"✅ Target tersimpan\n\n"+
-"KDTK : "+kdtk+
-"\nTarget Sales : Rp."+new Intl.NumberFormat('id-ID').format(p[1])+
-"\nTarget SPD : Rp."+new Intl.NumberFormat('id-ID').format(p[2])
+  "🎯 *TARGET BERHASIL DIPERBARUI*\n\n" +
+    "🏪 KDTK : " +
+    kdtk +
+    "\n🏬 TOKO : " +
+    (store.nama || "-") +
+    "\n\n💰 Target Sales : Rp." +
+    targetSales.toLocaleString("id-ID") +
+    "\n📈 Target SPD : Rp." +
+    targetSpd.toLocaleString("id-ID")
 )
+

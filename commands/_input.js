@@ -69,80 +69,131 @@ Bot.sendMessage(
 return
 }
 
-let kdtk = p[0].toUpperCase()
-let tgl = p[1]
+let kdtk =
+p[0].toUpperCase()
 
-let sales = parseInt(p[2])
-let struk = parseInt(p[3])
+let tgl =
+String(p[1])
+
+let sales =
+parseInt(p[2])
+
+let struk =
+parseInt(p[3])
+
+if(
+ isNaN(sales) ||
+ isNaN(struk)
+){
+
+ Bot.sendMessage(
+  "❌ Sales dan Struk harus berupa angka"
+ )
+
+ return
+}
+
+// ======================
+// AMBIL DATA STORE
+// ======================
+
+let store =
+Bot.getProperty(
+ "store_" + kdtk
+)
+
+if(!store){
+
+ Bot.sendMessage(
+  "❌ Store tidak ditemukan"
+ )
+
+ return
+}
+
+if(!store.sales){
+ store.sales = {}
+}
+
+if(!store.bl){
+ store.bl = {}
+}
 
 // ======================
 // VALIDASI DATA BULAN LALU
 // ======================
 
-let bl = Bot.getProperty(
-kdtk + "_BL"
-)
+let bl =
+store.bl
 
-if(!bl){
-Bot.sendMessage(
-"❌ Data bulan lalu belum tersedia.\n\n" +
-"Input terlebih dahulu menggunakan /inputbl"
-)
-return
+let keyTgl =
+String(tgl)
+
+if(
+ Object.keys(bl).length === 0
+){
+
+ Bot.sendMessage(
+  "❌ Data bulan lalu belum tersedia.\n\n"+
+  "Gunakan /inputbl atau /inputbl31 terlebih dahulu."
+ )
+
+ return
 }
 
-if(!bl[tgl]){
-Bot.sendMessage(
-"❌ Data bulan lalu tanggal " +
-tgl +
-" belum diinput."
-)
-return
-}
+if(!bl[keyTgl]){
 
-let keySales = kdtk + "_sales_" + tgl
-let keyStruk = kdtk + "_struk_" + tgl
+ Bot.sendMessage(
+  "❌ Data bulan lalu tanggal " +
+  keyTgl +
+  " belum tersedia."
+ )
+
+ return
+}
 
 // ======================
 // SIMPAN SALES HARIAN
 // ======================
 
-Bot.setProperty(keySales, sales, "integer")
-Bot.setProperty(keyStruk, struk, "integer")
+store.sales[keyTgl] = {
 
-// ======================
-// UPDATE INDEX TANGGAL
-// ======================
+ sales:sales,
+ struk:struk
 
-let index = Bot.getProperty("index_" + kdtk)
-
-if(!index){
-index = []
-}
-
-if(index.indexOf(tgl) == -1){
-index.push(tgl)
 }
 
 Bot.setProperty(
-  "index_" + kdtk,
-  index,
-  "json"
+
+ "store_"+kdtk,
+ store,
+ "json"
+
 )
 
 // ======================
 // AMBIL DATA BULAN LALU
 // ======================
 
-let salesBL = bl[tgl].sales
-let spdBL = bl[tgl].spd
-let stdBL = bl[tgl].std
-let apcBL = bl[tgl].apc
-let apc = 0
+let spdBL =
+Number(
+ bl[keyTgl].spd || 0
+)
 
-if(struk > 0){
-apc = Math.round(sales / struk)
-}
+let stdBL =
+Number(
+ bl[keyTgl].std || 0
+)
+
+let apcBL =
+Number(
+ bl[keyTgl].apc || 0
+)
+,let apc =
+
+struk > 0
+? Math.round(sales / struk)
+: 0
 
 //update dashboard admin panel
 Bot.runCommand("/dashboard_refresh")
@@ -152,15 +203,35 @@ Bot.runCommand("/dashboard_refresh")
 // ======================
 
 Bot.sendMessage(
-"✅ Data tersimpan\n\n" +
-"KDTK : " + kdtk +
-"\nTanggal : " + tgl +
-"\nSales : Rp." +
-new Intl.NumberFormat('id-ID').format(sales) +
-"\nStruk : " + struk +
-"\nAPC : " +
-new Intl.NumberFormat('id-ID').format(apc) + "\n\n=== BULAN LALU ===" +
-"\nSPD : Rp." + new Intl.NumberFormat('id-ID').format(spdBL) +
-"\nSTD : " + new Intl.NumberFormat('id-ID').format(stdBL) +
-"\nAPC : " + new Intl.NumberFormat('id-ID').format(apcBL)
+
+"✅ Data tersimpan\n\n"+
+
+"🏪 KDTK : " + kdtk +
+"\n🏬 Toko : " +
+(store.nama || "-") +
+
+"\n📅 Tanggal : " + tgl +
+
+"\n💰 Sales : Rp." +
+sales.toLocaleString("id-ID") +
+
+"\n🧾 Struk : " +
+struk.toLocaleString("id-ID") +
+
+"\n🔥 APC : Rp." +
+apc.toLocaleString("id-ID") +
+
+"\n\n━━━━━━━━━━━━━━"+
+"\n📉 BULAN LALU"+
+"\n━━━━━━━━━━━━━━"+
+
+"\nSPD : Rp." +
+spdBL.toLocaleString("id-ID") +
+
+"\nSTD : " +
+stdBL.toLocaleString("id-ID") +
+
+"\nAPC : Rp." +
+apcBL.toLocaleString("id-ID")
+
 )

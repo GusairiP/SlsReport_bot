@@ -28,17 +28,15 @@ Menghitung prediksi closing bulan.
 FORMAT:
 /closing T001
 
-FORMULA:
-SPD = Total Sales / Hari Aktif
-
-Prediksi =
-SPD x 31
+DATA SOURCE:
+store_T001
 
 OUTPUT:
 Total Sales
 SPD
-Prediksi
+Prediksi Closing
 Gap Target
+Status Target
 
 ========================================
 */
@@ -47,15 +45,32 @@ Gap Target
 // VALIDASI INPUT
 // ======================
 
-if(!params){
- Bot.sendMessage(
-  "/closing KDTK"
- )
- return
+if (!params) {
+  Bot.sendMessage("Format:\n\n/closing T001")
+  return
 }
 
-let kdtk =
-params.toUpperCase()
+let kdtk = params.toUpperCase().trim()
+
+// ======================
+// AMBIL DATA TOKO
+// ======================
+
+let store = Bot.getProperty("store_" + kdtk)
+
+if (!store) {
+  Bot.sendMessage("❌ Toko " + kdtk + " tidak ditemukan")
+  return
+}
+
+// ======================
+// VALIDASI DATA SALES
+// ======================
+
+if (!store.sales || Object.keys(store.sales).length == 0) {
+  Bot.sendMessage("⚠️ Belum ada data sales untuk " + kdtk)
+  return
+}
 
 // ======================
 // AKUMULASI SALES
@@ -64,24 +79,18 @@ params.toUpperCase()
 let totalSales = 0
 let hari = 0
 
-for(let i=1;i<=31;i++){
+for (let tgl in store.sales) {
+  let sales = Number(store.sales[tgl].sales || 0)
 
- let sales =
- Bot.getProperty(
-  kdtk + "_sales_" + i
- ) || 0
-
- sales = Number(sales)
-
- if(sales > 0){
-  totalSales += sales
-  hari++
- }
+  if (sales > 0) {
+    totalSales += sales
+    hari++
+  }
 }
 
-if(hari == 0){
- Bot.sendMessage("⚠️ Belum ada data sales")
- return
+if (hari == 0) {
+  Bot.sendMessage("⚠️ Belum ada data sales")
+  return
 }
 
 // ======================
@@ -89,55 +98,83 @@ if(hari == 0){
 // ======================
 
 let spd = totalSales / hari
-let prediksi = spd * 31
+
+// jumlah hari bulan berjalan
+let now = new Date()
+
+let jumlahHariBulan = new Date(
+  now.getFullYear(),
+  now.getMonth() + 1,
+  0
+).getDate()
+
+let prediksi = spd * jumlahHariBulan
 
 // ======================
-// AMBIL TARGET SALES
+// TARGET SALES
 // ======================
 
-let target =
-Number(
- Bot.getProperty(
-  kdtk + "_target_sales"
- ) || 0
-)
+let target = Number(store.target.sales || 0)
 
 let gap = target - prediksi
 
 // ======================
-// GENERATE CLOSING REPORT
+// ACHIEVEMENT
+// ======================
+
+let ach = 0
+
+if (target > 0) {
+  ach = Math.round((prediksi / target) * 100)
+}
+
+// ======================
+// STATUS TARGET
+// ======================
+
+let status = "⚪ ON TARGET"
+
+if (gap > 0) {
+  status = "🔴 UNDER TARGET"
+}
+
+if (gap < 0) {
+  status = "🟢 OVER TARGET"
+}
+
+// ======================
+// GENERATE REPORT
 // ======================
 
 let msg =
-"🎯 *CLOSING REPORT*\n" +
-"🏬 KDTK : " + kdtk +
-
-"\n\n━━━━━━━━━━━━━━\n" +
-"📊 *SUMMARY SALES*\n" +
-"━━━━━━━━━━━━━━\n" +
-"📦 Total Sales : Rp." +
-new Intl.NumberFormat('id-ID').format(totalSales) +
-"\n📅 Hari Aktif : " + hari +
-"\n📈 SPD        : Rp." +
-new Intl.NumberFormat('id-ID').format(Math.round(spd)) +
-"\n🔮 Prediksi   : Rp." +
-new Intl.NumberFormat('id-ID').format(Math.round(prediksi)) +
-
-"\n\n━━━━━━━━━━━━━━\n" +
-"🎯 *TARGET vs REALITY*\n" +
-"━━━━━━━━━━━━━━\n" +
-"🎯 Target : Rp." +
-new Intl.NumberFormat('id-ID').format(target) +
-"\n📉 GAP    : Rp." +
-new Intl.NumberFormat('id-ID').format(Math.round(gap))
-
-// STATUS GAP
-if(gap > 0){
- msg += "\n\n🔴 *UNDER TARGET*"
-}else if(gap < 0){
- msg += "\n\n🟢 *OVER TARGET*"
-}else{
- msg += "\n\n⚪ *ON TARGET*"
-}
+  "🎯 *CLOSING REPORT*\n\n" +
+  "🏬 KDTK : " +
+  kdtk +
+  "\n🏪 TOKO : " +
+  store.nama +
+  "\n\n━━━━━━━━━━━━━━" +
+  "\n📊 *SUMMARY SALES*" +
+  "\n━━━━━━━━━━━━━━" +
+  "\n📦 Total Sales : Rp." +
+  totalSales.toLocaleString("id-ID") +
+  "\n📅 Hari Aktif : " +
+  hari +
+  "\n📈 SPD : Rp." +
+  Math.round(spd).toLocaleString("id-ID") +
+  "\n🔮 Prediksi Closing : Rp." +
+  Math.round(prediksi).toLocaleString("id-ID") +
+  "\n\n━━━━━━━━━━━━━━" +
+  "\n🎯 *TARGET*" +
+  "\n━━━━━━━━━━━━━━" +
+  "\n🎯 Target Sales : Rp." +
+  target.toLocaleString("id-ID") +
+  "\n🏆 Achievement : " +
+  ach +
+  "%" +
+  "\n📉 GAP : Rp." +
+  Math.abs(Math.round(gap)).toLocaleString("id-ID") +
+  "\n\n" +
+  status
 
 Bot.sendMessage(msg)
+
