@@ -173,7 +173,7 @@ let apc = totalStruk > 0 ? Math.round(totalSales / totalStruk) : 0
 // ======================
 // AMBIL DATA BULAN LALU
 // ======================
-
+/**
 let bl = store.bl || {}
 
 let batasHari = new Date().getDate()
@@ -212,11 +212,41 @@ let spdBL = totalSPDbl / hariBL
 let stdBL = totalSTDbl / hariBL
 
 let apcBL = totalAPCbl / hariBL
+**/
+
+// ======================
+// AMBIL DATA BULAN LALU
+// ======================
+
+let bl = store.bl || {}
+
+if (!bl) {
+Bot.sendMessage("Data bulan lalu tidak ditemukan")
+return
+}
+
+// ambil tanggal yang sama dengan hari ini
+let tanggalSekarang = String(new Date().getDate())
+
+let dataBL = bl[tanggalSekarang]
+
+if (!dataBL) {
+Bot.sendMessage(
+"Data bulan lalu tanggal " +
+tanggalSekarang +
+" tidak ditemukan"
+)
+return
+}
+
+let spdBL = Number(dataBL.spd || 0)
+let stdBL = Number(dataBL.std || 0)
+let apcBL = Number(dataBL.apc || 0)
 
 // ======================
 // HITUNG GROWTH
 // ======================
-
+/**
 let gSPD = 0
 let gSTD = 0
 let gAPC = 0
@@ -230,6 +260,24 @@ if (hariBL > 0) {
 
   gAPC = apcBL > 0 ? ((apc - apcBL) / apcBL) * 100 : 0
 }
+**/
+// ======================
+// HITUNG GROWTH
+// ======================
+
+let gSPD = spdBL > 0
+? ((spd - spdBL) / spdBL) * 100
+: 0
+
+let gSTD = stdBL > 0
+? ((std - stdBL) / stdBL) * 100
+: 0
+
+let gAPC = apcBL > 0
+? ((apc - apcBL) / apcBL) * 100
+: 0
+
+
 
 // ======================
 // HITUNG ACHIEVEMENT
@@ -281,8 +329,11 @@ let msg =
   "APC : " +
   Math.round(apcBL).toLocaleString("id-ID") +
   "\n\n" +
+  
+
+  
   "*LAPORAN SALES HARIAN " +
-  bulanNama[now.getMonth() + 1].toUpperCase() +
+  bulanNama[now.getMonth("id-ID")+1].toUpperCase() +
   " " +
   tahun +
   "*\n\n" +
@@ -319,6 +370,7 @@ msg +=
   ach +
   "%"
 
+
 msg +=
   "\n\n*GROWTH SALES VS BULAN LALU*\n" +
   "SPD : " +
@@ -333,6 +385,7 @@ msg +=
   (gAPC > 0 ? "+" : "") +
   gAPC.toFixed(0) +
   "%"
+
 
 if (!history) {
   Bot.sendMessage("⚠️ Trend belum tersedia untuk " + kdtk)
