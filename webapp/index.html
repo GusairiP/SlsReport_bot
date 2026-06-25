@@ -66,7 +66,19 @@ document.getElementById("infoUser").textContent = "✅ " + (u.first_name||"Admin
 // ==== AMBIL DATA DARI URL ====
 const q = new URLSearchParams(location.search);
 let D = { ranking:[], totalStore:0, totalSales:0, over:0, under:0, avgSpd:0, achArea:0 };
-try{ if(q.get("d")) D = JSON.parse(atob(q.get("d"))); }catch(e){}
+(D.ranking||[]).forEach((r,i)=>{
+  let [warna,cls] = r.p>=100?["🟢","hijau"]:r.p>=90?["🟡","kuning"]:["🔴","merah"];
+  ht += `<tr class="border-t">
+    <td class="p-2">${i+1}</td>
+    <td class="p-2 font-semibold">${r.k}</td>
+    <td>${r.n}</td><td>${r.a}</td>
+    <td class="text-right">${Rp(r.s)}</td>
+    <td class="text-right">${Rp(r.t)}</td>
+    <td class="text-right font-bold">${r.p}%</td>
+    <td><span class="px-2 rounded text-xs ${cls}">${warna}</span></td></tr>`;
+  if(r.p<90) ha += `<div class="p-2 rounded merah">🔴 <b>${r.k}</b> — ${r.p}% | SPD ${Rp(r.s)}</div>`;
+});
+
 
 const Rp = n => "Rp " + Number(n||0).toLocaleString("id-ID");
 
