@@ -208,3 +208,6 @@ Bot.setProperty("STORE_RANKING", ranking, "json")
 
 Bot.sendMessage("✅ Dashboard berhasil diperbarui")
 
+Bot.runCommand("/web"); // opsional: sekalian update data web
+
+
