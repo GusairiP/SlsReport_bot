@@ -4,14 +4,8 @@
   need_reply: false
   auto_retry_time: 
   folder: Administrator
-
-  <<ANSWER
-
-  ANSWER
-
-  <<KEYBOARD
-
-  KEYBOARD
+  answer: 
+  keyboard: 
   aliases: 
   group: 
 CMD*/
@@ -101,4 +95,3 @@ for (let i = 0; i < stores.length; i++) {
 // ======================
 
 Bot.sendMessage(txt)
-

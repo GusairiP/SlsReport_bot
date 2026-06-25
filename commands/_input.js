@@ -4,14 +4,8 @@
   need_reply: false
   auto_retry_time: 
   folder: 
-
-  <<ANSWER
-
-  ANSWER
-
-  <<KEYBOARD
-
-  KEYBOARD
+  answer: 
+  keyboard: 
   aliases: 
   group: 
 CMD*/
@@ -175,4 +169,3 @@ Bot.sendMessage(
     "\nAPC : Rp." +
     apcBL.toLocaleString("id-ID")
 )
-

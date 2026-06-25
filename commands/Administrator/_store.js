@@ -4,14 +4,8 @@
   need_reply: false
   auto_retry_time: 
   folder: Administrator
-
-  <<ANSWER
-
-  ANSWER
-
-  <<KEYBOARD
-
-  KEYBOARD
+  answer: 
+  keyboard: 
   aliases: 
   group: 
 CMD*/
@@ -122,4 +116,3 @@ let msg =
   " Bulan"
 
 Bot.sendMessage(msg)
-

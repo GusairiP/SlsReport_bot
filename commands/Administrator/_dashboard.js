@@ -184,5 +184,4 @@ AdminPanel.setPanel({
 
 Bot.runCommand("/dashboard_refresh")
 
-Bot.sendMessage("✅ Dashboard berhasil diperbarui")
-
+//Bot.sendMessage("✅ Dashboard berhasil diperbarui")

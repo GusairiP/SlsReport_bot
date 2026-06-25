@@ -4,14 +4,8 @@
   need_reply: false
   auto_retry_time: 
   folder: Administrator
-
-  <<ANSWER
-
-  ANSWER
-
-  <<KEYBOARD
-
-  KEYBOARD
+  answer: 
+  keyboard: 
   aliases: 
   group: 
 CMD*/
@@ -94,4 +88,3 @@ Bot.sendMessage(
     now.toLocaleTimeString("id-ID") +
     "\n\n⛔ Command pengguna tidak dapat digunakan sampai bot diaktifkan kembali."
 )
-

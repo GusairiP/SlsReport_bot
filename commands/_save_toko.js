@@ -4,14 +4,8 @@
   need_reply: true
   auto_retry_time: 
   folder: 
-
-  <<ANSWER
-
-  ANSWER
-
-  <<KEYBOARD
-
-  KEYBOARD
+  answer: 
+  keyboard: 
   aliases: 
   group: 
 CMD*/
@@ -43,4 +37,3 @@ let data = {
 Bot.setProperty("store_" + data.kdtk, data, "json")
 
 Bot.sendMessage("✅ Toko " + data.kdtk + " berhasil dibuat")
-

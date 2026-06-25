@@ -4,14 +4,8 @@
   need_reply: false
   auto_retry_time: 
   folder: Administrator
-
-  <<ANSWER
-
-  ANSWER
-
-  <<KEYBOARD
-
-  KEYBOARD
+  answer: 
+  keyboard: 
   aliases: 
   group: 
 CMD*/
@@ -78,4 +72,3 @@ for (let i = 0; i < ranking.length; i++) {
 txt += "━━━━━━━━━━━━━━\n" + "Total Store : " + ranking.length
 
 Bot.sendMessage(txt)
-

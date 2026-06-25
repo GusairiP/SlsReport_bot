@@ -4,14 +4,8 @@
   need_reply: false
   auto_retry_time: 
   folder: 
-
-  <<ANSWER
-
-  ANSWER
-
-  <<KEYBOARD
-
-  KEYBOARD
+  answer: 
+  keyboard: 
   aliases: 
   group: 
 CMD*/
@@ -203,4 +197,3 @@ msg += "\n🧾 Struk : " + trend(gStruk) + gStruk.toFixed(2) + "%"
 msg += "\n🔥 APC : " + trend(gApc) + gApc.toFixed(2) + "%"
 
 Bot.sendMessage(msg)
-

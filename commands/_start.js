@@ -4,14 +4,8 @@
   need_reply: false
   auto_retry_time: 
   folder: 
-
-  <<ANSWER
-
-  ANSWER
-
-  <<KEYBOARD
-
-  KEYBOARD
+  answer: 
+  keyboard: 
   aliases: hi, halo
   group: 
 CMD*/
@@ -99,4 +93,3 @@ if (isAdmin) {
 // ======================
 
 Bot.sendInlineKeyboard(rows, "📋 *MENU UTAMA SALES REPORT*\n\n" + intro)
-

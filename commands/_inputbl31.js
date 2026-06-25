@@ -44,14 +44,8 @@ Contoh salah:
   need_reply: false
   auto_retry_time: 
   folder: 
-
-  <<ANSWER
-
-  ANSWER
-
-  <<KEYBOARD
-
-  KEYBOARD
+  answer: 
+  keyboard: 
   aliases: 
   group: 
 CMD*/
@@ -219,4 +213,3 @@ Bot.sendMessage(
     kdtk +
     ".bl"
 )
-

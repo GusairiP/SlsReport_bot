@@ -1,7 +1,7 @@
 /*CMD
   command: /alert
   help: 
-  need_reply: false
+  need_reply: true
   auto_retry_time: 
   folder: Administrator
 
@@ -144,33 +144,3 @@ for (let i = 0; i < alertStore.length; i++) {
 txt += "━━━━━━━━━━━━━━\n" + "Total Alert : " + alertStore.length + " Store"
 
 Bot.sendMessage(txt)
-
-const KUNCI_GEMINI = "AQ.Ab8RN6IPg7jPDxY6w0C7vCzMlhGJKDy1AgNMXUWGX4O8CsZBvg" // HANYA DI SINI, JANGAN DI GITHUB
-
-// ==== ANALISIS OTOMATIS OLEH AI ====
-if (alertStore.length > 0) {
-  HTTP.post({
-    url:
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
-      KUNCI_GEMINI,
-    headers: { "Content-Type": "application/json" },
-    body: {
-      contents: [
-        {
-          parts: [
-            {
-              text: `Data toko di bawah 90%: ${JSON.stringify(alertStore)}
-      Berikan kemungkinan sebab & saran tindakan singkat, Bahasa Indonesia.`
-            }
-          ]
-        }
-      ]
-    },
-    success: r =>
-      Bot.sendMessage(
-        "💡 *SARAN AI*\n\n" + r.candidates[0].content.parts[0].text,
-        { parse_mode: "Markdown" }
-      )
-  })
-}
-
