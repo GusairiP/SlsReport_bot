@@ -1,5 +1,0 @@
-# JANGAN COMMIT KE PUBLIK
-*.secret
-*.key
-token.txt
-api-key.txt

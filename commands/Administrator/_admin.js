@@ -139,6 +139,12 @@ Bot.sendInlineKeyboard(
    title:"🔄 Refresh",
    command:"/dashboard_refresh"
   }
+ ],
+  [
+  {
+   title:"🌐 Web Dashboard",
+   command:"/web"
+  }
  ]
 ],
 
